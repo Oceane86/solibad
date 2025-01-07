@@ -6,7 +6,11 @@ module.exports = {
     "./app/**/*.{js,ts,jsx,tsx}", // Si tu utilises la nouvelle app router de Next.js
   ],
   theme: {
-    extend: {},
+    extend: {
+      screens: {
+        xs: "375px",
+      },
+    },
   },
   plugins: [],
 }

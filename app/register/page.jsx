@@ -9,7 +9,9 @@ export default function RegisterPage() {
         email: "",
         password: "",
         confirmPassword: "",
-        status: "visiteur"
+        status: "visiteur",
+        description: "",
+        profileImage: null
     });
     const [errors, setErrors] = useState({});
     const [successMessage, setSuccessMessage] = useState("");
@@ -49,7 +51,8 @@ export default function RegisterPage() {
                     username: formData.username,
                     email: formData.email,
                     password: formData.password,
-                    status: "visiteur"
+                    status: "visiteur",
+                    description: formData.description
                 })
             });
 
@@ -136,6 +139,19 @@ export default function RegisterPage() {
                         {errors.confirmPassword && <p className="text-red-500 text-sm mt-1">{errors.confirmPassword}</p>}
                     </div>
 
+                    <div>
+                        <label htmlFor="description" className="block text-sm font-medium text-gray-700">
+                            Description (optionnel)
+                        </label>
+                        <textarea
+                            id="description"
+                            name="description"
+                            value={formData.description}
+                            onChange={handleChange}
+                            className="mt-1 w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                        />
+                    </div>
+
                     {errors.form && (
                         <div className="text-red-500 text-sm text-center p-2 bg-red-50 rounded-md">
                             {errors.form}
@@ -153,6 +169,12 @@ export default function RegisterPage() {
                     >
                         S'inscrire
                     </button>
+
+                    <div className="text-center text-sm text-gray-600">
+                        <a href="/login" className="hover:text-blue-500">
+                            Vous avez déjà un compte ? Se connecter
+                        </a>
+                    </div>
                 </form>
             </div>
         </div>
