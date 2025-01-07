@@ -11,23 +11,33 @@ const itemSchema = new mongoose.Schema(
             type: String,
             required: true,
         },
+        imageURL: {  
+            type: String,
+            default: "assets/default-item-image.png",
+        },
+        initialPrice: {
+            type: Number,
+            required: true,
+        },
+        status: {
+            type: String,
+            required: true,
+        },
+        startDate: {
+            type: Date,
+            required: true,
+        },
         endDate: {
             type: Date,
             required: true,
         },
-        startingPrice: {
-            type: Number,
-            required: true,
-        },
+       
         creator: {
             type: mongoose.Schema.Types.ObjectId,
             ref: "User",
             required: true,
         },
-        imagePath: {  
-            type: String,
-            default: "assets/default-item-image.png",
-        },
+       
     },
     { timestamps: true }
 );
