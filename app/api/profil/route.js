@@ -1,6 +1,5 @@
 // app/api/profil/route.js
 
-
 import { connectToDB } from "@/mongodb/database"; 
 import User from "@/models/User";
 

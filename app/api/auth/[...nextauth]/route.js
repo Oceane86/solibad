@@ -61,7 +61,7 @@ const handler = NextAuth({
                             username: profile.name,
                             profileImagePath: profile.picture,
                             isGoogleUser: true,
-                            status: "visiteur",
+                            role: "visiteur",
                         });
                     }
                     return true;
