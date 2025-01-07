@@ -19,9 +19,9 @@ export async function POST(req) {
         await connectToDB();
 
         const data = await req.formData();
-        const { name, description, endDate, startingPrice, image } = Object.fromEntries(data.entries());
+        const { name, description, endDate, startDate, image } = Object.fromEntries(data.entries());
 
-        console.log("Données du formulaire:", { name, description, endDate, startingPrice, image });
+        console.log("Données du formulaire:", { name, description, endDate, startDate, image });
 
         const session = await getSession();
         console.log("Session récupérée :", session); 
@@ -45,7 +45,7 @@ export async function POST(req) {
             );
         }
 
-        if (!name || !description || !endDate || !startingPrice) {
+        if (!name || !description || !endDate || !startDate) {
             return NextResponse.json(
                 { message: "Tous les champs requis doivent être remplis." },
                 { status: 400 }
@@ -60,8 +60,8 @@ export async function POST(req) {
             );
         }
 
-        const startingPriceParsed = parseFloat(startingPrice);
-        if (isNaN(startingPriceParsed) || startingPriceParsed <= 0) {
+        const initialPriceParsed = parseFloat(initialPrice);
+        if (isNaN(initialPrice) || initialPriceParsed <= 0) {
             return NextResponse.json(
                 { message: "Le prix de départ doit être un nombre valide." },
                 { status: 400 }
@@ -103,9 +103,9 @@ export async function POST(req) {
             name,
             description,
             endDate: endDateParsed,
-            startingPrice: startingPriceParsed,
+            initialPrice: initialPriceParsed,
             creator: user.id, 
-            imagePath, 
+            imageURL, 
         });
 
         await newItem.save();

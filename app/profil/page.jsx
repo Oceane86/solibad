@@ -1,5 +1,7 @@
 // app/profil/page.jsx
 
+
+
 'use client';
 
 import NavBar from "@components/NavBar";
@@ -54,6 +56,31 @@ export default function ProfilePage() {
           Se déconnecter
         </button>
       </div>
+
+      <div className="container mx-auto">
+        <h2 className="text-2xl font-bold mb-4">Mes informations</h2>
+          <form className="form_informations">
+            <div className="form-group">
+              <label className="form-label" htmlFor="username">{user.name}</label>
+              <input type="text"></input>
+              <label className="form-label" htmlFor="email">{user.email}</label>
+              <input type="text"></input>
+              <label className="form-label" htmlFor="adress">adress</label>
+              <input type="text"></input>
+              <label className="form-label" htmlFor="city">city</label>
+              <input type="text"></input>
+              <label className="form-label" htmlFor="state">state</label>
+              <input type="text"></input>
+              <label className="form-label" htmlFor="country">country</label>
+              <input type="text"></input>
+              <label className="form-label" htmlFor="postalCode">postalCode</label>
+            </div>
+          </form>
+      </div>
     </div>
   );
 }
+
+
+
+
