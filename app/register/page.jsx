@@ -10,7 +10,7 @@ const RegisterPage = () => {
     email: "",
     password: "",
     confirmPassword: "",
-    status: "",
+    role: "",
     username: "",
     profileImage: null,
     description: "",
@@ -42,7 +42,7 @@ const RegisterPage = () => {
       }
     }
     if (step === 2) {
-      if (!formData.status) stepErrors.status = "Le statut est obligatoire.";
+      if (!formData.role) stepErrors.role = "Le statut est obligatoire.";
       if (!formData.username) stepErrors.username = "Le nom d'utilisateur est obligatoire.";
     }
     return stepErrors;
@@ -76,7 +76,6 @@ const RegisterPage = () => {
     const result = await response.json();
 
     if (response.ok) {
-      // Inscription réussie, connectez immédiatement l'utilisateur
       const loginResponse = await signIn("credentials", {
         redirect: false,
         email: formData.email,
@@ -138,12 +137,12 @@ const RegisterPage = () => {
                 <h1 className="gradient-color">Informations</h1>
                 <div>
                   <label>Statut</label>
-                  <select name="status" value={formData.status} onChange={handleChange}>
+                  <select name="role" value={formData.role} onChange={handleChange}>
                     <option value="">Sélectionnez</option>
                     <option value="admin">Admin</option>
                     <option value="visiteur">Visiteur</option>
                   </select>
-                  {errors.status && <p className="error">{errors.status}</p>}
+                  {errors.role && <p className="error">{errors.role}</p>}
                 </div>
                 <div>
                   <label>Nom d'utilisateur</label>
