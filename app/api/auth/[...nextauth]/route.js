@@ -1,4 +1,5 @@
 // app/api/auth/[...nextauth].js
+
 import { connectToDB } from "@/mongodb/database";
 import NextAuth from "next-auth/next";
 import GoogleProvider from "next-auth/providers/google";
@@ -40,10 +41,12 @@ const handler = NextAuth({
 
     callbacks: {
         async session({ session }) {
+            console.log("Session callback:", session);
             const sessionUser = await User.findOne({ email: session.user.email });
-            session.user.id = sessionUser._id.toString();
-            session.user.profileImagePath = sessionUser.profileImagePath;
-
+            if (sessionUser) {
+                session.user.id = sessionUser._id.toString();
+                session.user.profileImagePath = sessionUser.profileImagePath;
+            }
             return session;
         },
 
@@ -69,8 +72,6 @@ const handler = NextAuth({
             }
             return true;
         },
-
-        // Ajout du callback redirect
         async redirect({ url, baseUrl }) {
             return baseUrl;
         },

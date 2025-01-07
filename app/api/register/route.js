@@ -1,4 +1,5 @@
 // app/api/register/route.js
+
 import { connectToDB } from "@/mongodb/database";
 import User from "@/models/User";
 import { NextResponse } from "next/server";
@@ -24,11 +25,10 @@ export async function POST(req) {
             confirmPassword,
             profileImage,
             status,
-            siren,
-            tvaNumber,
             description,
         } = Object.fromEntries(data.entries());
 
+        // Validation des champs requis
         if (!username || !email || !password || !status) {
             return NextResponse.json(
                 { message: "Tous les champs requis doivent être remplis." },
@@ -36,6 +36,7 @@ export async function POST(req) {
             );
         }
 
+        // Validation des mots de passe
         if (password !== confirmPassword) {
             return NextResponse.json(
                 { message: "Les mots de passe ne correspondent pas." },
@@ -43,9 +44,18 @@ export async function POST(req) {
             );
         }
 
+        // Validation du statut (admin ou visiteur uniquement)
+        if (!["admin", "visiteur"].includes(status)) {
+            return NextResponse.json(
+                { message: "Le statut doit être 'admin' ou 'visiteur'." },
+                { status: 400 }
+            );
+        }
+
         const hashedPassword = await hash(password, 10);
         let profileImagePath = "assets/default-profile.png";
 
+        // Téléchargement de l'image de profil si elle est présente
         if (profileImage && typeof profileImage.arrayBuffer === "function") {
             const buffer = Buffer.from(await profileImage.arrayBuffer());
             const stream = Readable.from(buffer);
@@ -62,18 +72,18 @@ export async function POST(req) {
             profileImagePath = uploadResult.secure_url;
         }
 
+        // Création du nouvel utilisateur
         const newUser = new User({
             username,
             email,
             password: hashedPassword,
             profileImagePath,
             status,
-            ...(status === "artiste" || status === "entreprise" ? { siren, tvaNumber } : {}),
             description: description || "",
         });
 
         await newUser.save();
-        
+
         return NextResponse.json(
             { message: "Utilisateur enregistré avec succès. Connectez-vous maintenant." },
             { status: 201 }

@@ -1,5 +1,5 @@
 // app/register/page.jsx
-"use client";
+'use client';
 import { signIn } from "next-auth/react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
@@ -12,8 +12,6 @@ const RegisterPage = () => {
     confirmPassword: "",
     status: "",
     username: "",
-    siren: "",
-    tvaNumber: "",
     profileImage: null,
     description: "",
   });
@@ -46,18 +44,6 @@ const RegisterPage = () => {
     if (step === 2) {
       if (!formData.status) stepErrors.status = "Le statut est obligatoire.";
       if (!formData.username) stepErrors.username = "Le nom d'utilisateur est obligatoire.";
-      if (
-        (formData.status === "artiste" || formData.status === "entreprise") &&
-        !formData.siren
-      ) {
-        stepErrors.siren = "Le SIREN est obligatoire pour ce statut.";
-      }
-      if (
-        (formData.status === "artiste" || formData.status === "entreprise") &&
-        !formData.tvaNumber
-      ) {
-        stepErrors.tvaNumber = "Le numéro de TVA est obligatoire pour ce statut.";
-      }
     }
     return stepErrors;
   };
@@ -107,7 +93,6 @@ const RegisterPage = () => {
     }
   };
 
-
   return (
     <>
       <div className="login">
@@ -155,8 +140,7 @@ const RegisterPage = () => {
                   <label>Statut</label>
                   <select name="status" value={formData.status} onChange={handleChange}>
                     <option value="">Sélectionnez</option>
-                    <option value="artiste">Artiste</option>
-                    <option value="entreprise">Entreprise</option>
+                    <option value="admin">Admin</option>
                     <option value="visiteur">Visiteur</option>
                   </select>
                   {errors.status && <p className="error">{errors.status}</p>}
@@ -166,20 +150,6 @@ const RegisterPage = () => {
                   <input type="text" name="username" value={formData.username} onChange={handleChange} />
                   {errors.username && <p className="error">{errors.username}</p>}
                 </div>
-                {(formData.status === "artiste" || formData.status === "entreprise") && (
-                  <>
-                    <div>
-                      <label>SIREN</label>
-                      <input type="text" name="siren" value={formData.siren} onChange={handleChange} />
-                      {errors.siren && <p className="error">{errors.siren}</p>}
-                    </div>
-                    <div>
-                      <label>Numéro de TVA</label>
-                      <input type="text" name="tvaNumber" value={formData.tvaNumber} onChange={handleChange} />
-                      {errors.tvaNumber && <p className="error">{errors.tvaNumber}</p>}
-                    </div>
-                  </>
-                )}
                 <button type="button" onClick={handleNextStep}>Suivant</button>
               </>
             )}

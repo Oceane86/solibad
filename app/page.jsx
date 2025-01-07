@@ -1,11 +1,13 @@
 // app/page.jsx
 "use client";
+import NavBar from "@components/NavBar";
 
 const Home = () => {
   
   return (
     <>
-      <h1>COURAGE</h1>
+    <NavBar/>
+      <h1>SolidBad</h1>
     </>
   );
 };

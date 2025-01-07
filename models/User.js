@@ -23,15 +23,8 @@ const userSchema = new mongoose.Schema({
     },
     status: {
         type: String,
-        enum: ['artiste', 'entreprise', 'visiteur'],
-        // required: true,
+        enum: ['visiteur', 'admin'], 
         default: "visiteur"
-    },
-    siren: {
-        type: String,
-    },
-    tvaNumber: {
-        type: String,
     },
     description: {
         type: String,

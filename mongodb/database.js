@@ -15,7 +15,7 @@ export const connectToDB = async () => {
     // Connect to the database
     try {
         await mongoose.connect(process.env.MONGO_URI, {
-            dbName: "brekor",
+            dbName: "solibad",
             useNewUrlParser: true,
             useUnifiedTopology: true,
         })
