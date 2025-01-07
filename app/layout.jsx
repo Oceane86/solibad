@@ -1,15 +1,15 @@
 // app/layout.jsx
 // import "@styles/globals.css";
 import Provider from "@components/Provider";
+import "./globals.css";
 
 const layout = ({ children }) => {
   return (
     <html lang="fr">
       <head>
-
       </head>
       <body>
-        <Provider>
+      <Provider>
           <main>
             {children}
           </main>
