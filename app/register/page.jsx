@@ -76,7 +76,6 @@ const RegisterPage = () => {
     const result = await response.json();
 
     if (response.ok) {
-      // Inscription réussie, connectez immédiatement l'utilisateur
       const loginResponse = await signIn("credentials", {
         redirect: false,
         email: formData.email,
