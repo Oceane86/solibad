@@ -1,4 +1,3 @@
-// app/register/page.jsx
 'use client';
 import { signIn } from "next-auth/react";
 import { useState } from "react";
@@ -27,28 +26,65 @@ const RegisterPage = () => {
     } else {
       setFormData({ ...formData, [name]: value });
     }
-    // Clear specific error when user starts editing
     setErrors({ ...errors, [name]: "" });
   };
 
-  // Validation logic for each step
+  const stepConfig = {
+    1: {
+      title: "Créez votre compte",
+      fields: [
+        { name: "email", label: "Email", type: "email", required: true },
+        { name: "password", label: "Mot de passe", type: "password", required: true },
+        { name: "confirmPassword", label: "Confirmation du mot de passe", type: "password", required: true },
+      ],
+      validate: () => {
+        const stepErrors = {};
+        if (!formData.email) stepErrors.email = "L'adresse e-mail est obligatoire.";
+        if (!formData.password) stepErrors.password = "Le mot de passe est obligatoire.";
+        if (formData.password !== formData.confirmPassword) {
+          stepErrors.confirmPassword = "Les mots de passe ne correspondent pas.";
+        }
+        return stepErrors;
+      },
+    },
+    2: {
+      title: "Informations",
+      fields: [
+        {
+          name: "status",
+          label: "Statut",
+          type: "select",
+          options: [
+            { value: "", label: "Sélectionnez" },
+            { value: "admin", label: "Admin" },
+            { value: "visiteur", label: "Visiteur" },
+          ],
+          required: true,
+        },
+        { name: "username", label: "Nom d'utilisateur", type: "text", required: true },
+      ],
+      validate: () => {
+        const stepErrors = {};
+        if (!formData.status) stepErrors.status = "Le statut est obligatoire.";
+        if (!formData.username) stepErrors.username = "Le nom d'utilisateur est obligatoire.";
+        return stepErrors;
+      },
+    },
+    3: {
+      title: "Profil",
+      fields: [
+        { name: "profileImage", label: "Image de profil (optionnel)", type: "file" },
+        { name: "description", label: "Description (optionnel)", type: "textarea" },
+      ],
+      validate: () => ({}), // No validation for step 3
+    },
+  };
+
   const validateStep = () => {
-    const stepErrors = {};
-    if (step === 1) {
-      if (!formData.email) stepErrors.email = "L'adresse e-mail est obligatoire.";
-      if (!formData.password) stepErrors.password = "Le mot de passe est obligatoire.";
-      if (formData.password !== formData.confirmPassword) {
-        stepErrors.confirmPassword = "Les mots de passe ne correspondent pas.";
-      }
-    }
-    if (step === 2) {
-      if (!formData.status) stepErrors.status = "Le statut est obligatoire.";
-      if (!formData.username) stepErrors.username = "Le nom d'utilisateur est obligatoire.";
-    }
+    const stepErrors = stepConfig[step]?.validate() || {};
     return stepErrors;
   };
 
-  // Handles form submission for step transitions
   const handleNextStep = () => {
     const stepErrors = validateStep();
     if (Object.keys(stepErrors).length > 0) {
@@ -76,7 +112,6 @@ const RegisterPage = () => {
     const result = await response.json();
 
     if (response.ok) {
-      // Inscription réussie, connectez immédiatement l'utilisateur
       const loginResponse = await signIn("credentials", {
         redirect: false,
         email: formData.email,
@@ -93,84 +128,82 @@ const RegisterPage = () => {
     }
   };
 
+  const renderField = (field) => {
+    switch (field.type) {
+      case "select":
+        return (
+            <select
+                name={field.name}
+                id={field.name}
+                value={formData[field.name]}
+                onChange={handleChange}
+                className="mt-1 w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+            >
+              {field.options.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+              ))}
+            </select>
+        );
+      case "textarea":
+        return (
+            <textarea
+                name={field.name}
+                id={field.name}
+                value={formData[field.name]}
+                onChange={handleChange}
+                className="mt-1 w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+            ></textarea>
+        );
+      default:
+        return (
+            <input
+                type={field.type}
+                name={field.name}
+                id={field.name}
+                value={field.type === "file" ? undefined : formData[field.name]}
+                onChange={handleChange}
+                className="mt-1 w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+            />
+        );
+    }
+  };
+
   return (
-    <>
-      <div className="login">
-        <div className="login_content">
-          <form className="login_content_form" onSubmit={handleSubmit}>
-            {step === 1 && (
-              <>
-                <h1 className="gradient-color">Créez votre compte</h1>
-                <div>
-                  <label>Email</label>
-                  <input type="email" name="email" value={formData.email} onChange={handleChange} />
-                  {errors.email && <p className="error">{errors.email}</p>}
+      <div className="min-h-screen flex items-center justify-center bg-gray-100">
+        <div className="w-full max-w-lg bg-white p-8 rounded-lg shadow-md">
+          <h1 className="text-2xl font-bold text-center text-gray-800 mb-6">
+            {stepConfig[step]?.title}
+          </h1>
+          <form
+              className="space-y-6"
+              onSubmit={step === 3 ? handleSubmit : (e) => e.preventDefault()}
+          >
+            {stepConfig[step]?.fields.map((field) => (
+                <div key={field.name}>
+                  <label
+                      htmlFor={field.name}
+                      className="block text-sm font-medium text-gray-700"
+                  >
+                    {field.label}
+                  </label>
+                  {renderField(field)}
+                  {errors[field.name] && (
+                      <p className="text-red-500 text-sm">{errors[field.name]}</p>
+                  )}
                 </div>
-                <div>
-                  <label>Mot de passe</label>
-                  <input type="password" name="password" value={formData.password} onChange={handleChange} />
-                  {errors.password && <p className="error">{errors.password}</p>}
-                </div>
-                <div>
-                  <label>Confirmation du mot de passe</label>
-                  <input type="password" name="confirmPassword" value={formData.confirmPassword} onChange={handleChange} />
-                  {errors.confirmPassword && <p className="error">{errors.confirmPassword}</p>}
-                </div>
-                <button type="button" onClick={handleNextStep}>Suivant</button>
-                <div className="login_content_form_rs">
-                  <div>
-                    <p>Ou continuez avec</p>
-                    <div className="d-flex align-items-center justify-content-center column-gap-3">
-                      <button className="rs" onClick={() => signIn('google')}>
-                        <img src="/assets/icon-google.svg" alt="Icon Google" />
-                      </button>
-                      <button className="rs">
-                        <img src="/assets/icon-facebook.svg" alt="Icon Facebook" />
-                      </button>
-                    </div>
-                  </div>
-                  <a href="/login">Vous avez déjà un compte ? Se connecter</a>
-                </div>
-              </>
-            )}
-            {step === 2 && (
-              <>
-                <h1 className="gradient-color">Informations</h1>
-                <div>
-                  <label>Statut</label>
-                  <select name="status" value={formData.status} onChange={handleChange}>
-                    <option value="">Sélectionnez</option>
-                    <option value="admin">Admin</option>
-                    <option value="visiteur">Visiteur</option>
-                  </select>
-                  {errors.status && <p className="error">{errors.status}</p>}
-                </div>
-                <div>
-                  <label>Nom d'utilisateur</label>
-                  <input type="text" name="username" value={formData.username} onChange={handleChange} />
-                  {errors.username && <p className="error">{errors.username}</p>}
-                </div>
-                <button type="button" onClick={handleNextStep}>Suivant</button>
-              </>
-            )}
-            {step === 3 && (
-              <>
-                <h1 className="gradient-color">Profil</h1>
-                <div>
-                  <label>Image de profil (optionnel)</label>
-                  <input type="file" name="profileImage" onChange={handleChange} />
-                </div>
-                <div>
-                  <label>Description (optionnel)</label>
-                  <textarea name="description" value={formData.description} onChange={handleChange}></textarea>
-                </div>
-                <button type="submit">Finaliser</button>
-              </>
-            )}
+            ))}
+            <button
+                type={step === 3 ? "submit" : "button"}
+                onClick={step === 3 ? handleSubmit : handleNextStep}
+                className="w-full py-2 px-4 text-white bg-blue-600 hover:bg-blue-700 rounded-md shadow-md"
+            >
+              {step === 3 ? "Finaliser" : "Suivant"}
+            </button>
           </form>
         </div>
       </div>
-    </>
   );
 };
 

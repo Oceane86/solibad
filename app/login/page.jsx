@@ -1,10 +1,7 @@
-// app/login/page.jsx
-
-
 "use client";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
 const Login = () => {
     const [email, setEmail] = useState("");
@@ -38,42 +35,70 @@ const Login = () => {
     };
 
     return (
-        <div className="login-page">
-            <div className="login">
-                <div className="login_content">
-                    <h1 className="gradient-color">Connectez-vous</h1>
-                    <form className="login_content_form" onSubmit={handleSubmit}>
-                        <label>Adresse mail</label>
+        <div className="min-h-screen flex items-center justify-center bg-gray-100">
+            <div className="w-full max-w-md bg-white p-8 rounded-lg shadow-md">
+                <h1 className="text-2xl font-bold text-center text-gray-800 mb-6">
+                    Connectez-vous
+                </h1>
+                <form className="space-y-4" onSubmit={handleSubmit}>
+                    <div>
+                        <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+                            Adresse mail
+                        </label>
                         <input
+                            id="email"
                             name="email"
                             type="email"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
                             required
+                            className="mt-1 w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                         />
-
-                        <label>Mot de passe</label>
+                    </div>
+                    <div>
+                        <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+                            Mot de passe
+                        </label>
                         <input
+                            id="password"
                             name="password"
                             type="password"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                             required
+                            className="mt-1 w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                         />
-                        {error && <p className="error">{error}</p>}
-                        <button type="submit" disabled={isLoading}>
-                            {isLoading ? "Connexion en cours..." : "Se connecter"}
-                        </button>
-                    </form>
-                    <div className="login_content_rs">
-                        <p>Ou continuez avec</p>
-                        <div className="d-flex column-gap-3">
-                            <button className="rs" onClick={() => signIn("google")}>
-                                <img src="../assets/icone-google.svg" alt="Icon Google" />
-                            </button>
-                        </div>
-                        <a href="/register">Vous n'avez pas de compte ? S'inscrire</a>
                     </div>
+                    {error && <p className="text-red-500 text-sm">{error}</p>}
+                    <button
+                        type="submit"
+                        disabled={isLoading}
+                        className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                    >
+                        {isLoading ? "Connexion en cours..." : "Se connecter"}
+                    </button>
+                </form>
+                <div className="mt-6 text-center">
+                    <p className="text-sm text-gray-600">Ou continuez avec</p>
+                    <div className="flex justify-center mt-2">
+                        <button
+                            className="flex items-center justify-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-gray-700 hover:bg-gray-50"
+                            onClick={() => signIn("google")}
+                        >
+                            <img
+                                src="/assets/icone-google.svg"
+                                alt="Icon Google"
+                                className="h-5 w-5 mr-2"
+                            />
+                            Google
+                        </button>
+                    </div>
+                    <a
+                        href="/register"
+                        className="block mt-4 text-sm text-blue-600 hover:underline"
+                    >
+                        Vous n'avez pas de compte ? S'inscrire
+                    </a>
                 </div>
             </div>
         </div>
