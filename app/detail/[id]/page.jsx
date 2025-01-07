@@ -1,21 +1,20 @@
 "use client";
-import { useSearchParams } from "next/navigation";
+
+import { Suspense } from "react";
 import { useEffect, useState } from "react";
 
-const DetailPage = () => {
-    const searchParams = useSearchParams();
-    const id = searchParams.get("id");
-
+const DetailPage = ({ params }) => {
+    const { id } = params;
     const [item, setItem] = useState(null);
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
+
         if (!id) {
-            setError("Aucun ID fourni.");
-            setLoading(false);
-            return;
+            return <p>❌ Aucun ID trouvé. Vérifiez l'URL ou la configuration.</p>;
         }
+
 
         const fetchItem = async () => {
             try {
@@ -41,20 +40,22 @@ const DetailPage = () => {
     if (error) return <p style={{ color: "red" }}>❌ {error}</p>;
 
     return (
-        <div>
-            <h1>Page de détail</h1>
-            <p><strong>ID reçu :</strong> {id}</p>
-            {item && (
-                <>
-                    <h2>{item.name}</h2>
-                    <p><strong>Description :</strong> {item.description}</p>
-                    <p><strong>Prix de départ :</strong> {item.startingPrice}</p>
-                    <p><strong>Statut :</strong> {item.status}</p>
-                    <p><strong>Date de début :</strong> {item.startDate}</p>
-                    <p><strong>Date de fin :</strong> {item.endDate}</p>
-                </>
-            )}
-        </div>
+        <Suspense>
+            <div>
+                <h1>Page de détail</h1>
+                <p><strong>ID reçu :</strong> {id}</p>
+                {item && (
+                    <>
+                        <h2>{item.name}</h2>
+                        <p><strong>Description :</strong> {item.description}</p>
+                        <p><strong>Prix de départ :</strong> {item.startingPrice}</p>
+                        <p><strong>Statut :</strong> {item.status}</p>
+                        <p><strong>Date de début :</strong> {item.startDate}</p>
+                        <p><strong>Date de fin :</strong> {item.endDate}</p>
+                    </>
+                )}
+            </div>
+        </Suspense>
     );
 };
 
