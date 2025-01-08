@@ -10,7 +10,7 @@ const Home = () => {
     useEffect(() => {
         const fetchItems = async () => {
             try {
-                const response = await fetch(`http://localhost:3000/api/items/select`);
+                const response = await fetch(`${process.env.API_URL}/api/items/select`);
 
                 if (!response.ok) {
                     throw new Error("Erreur lors de la récupération des données.");

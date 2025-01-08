@@ -18,7 +18,7 @@ const DetailPage = ({ params }) => {
 
         const fetchItem = async () => {
             try {
-                const response = await fetch(`http://localhost:3000/api/items/select?id=${id}`);
+                const response = await fetch(`${process.env.API_URL}/api/items/select?id=${id}`);
 
                 if (!response.ok) {
                     throw new Error("Erreur lors de la récupération des données.");
