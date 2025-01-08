@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { connectToDB } from "@/mongodb/database";
+
 import Item from "@/models/Item";
 import mongoose from "mongoose";
 
@@ -23,34 +24,34 @@ export async function POST(req) {
             );
         }
 
-        const { name, description, imagePath, startingPrice, status, startDate, endDate, creator } = data;
+        const { name, description, imageURL, initialPrice, status, startDate, endDate, createdBy } = data;
 
         console.log("Données du formulaire reçues:", data);
 
-        if (!name || !description || !imagePath || !startingPrice || !status || !startDate || !endDate || !creator) {
+        if (!name || !description || !imageURL || !initialPrice || !status || !startDate || !endDate || !createdBy) {
             return NextResponse.json(
                 { message: "Tous les champs requis doivent être remplis." },
                 { status: 400 }
             );
         }
 
-        if (!mongoose.Types.ObjectId.isValid(creator)) {
+        if (!mongoose.Types.ObjectId.isValid(createdBy)) {
             return NextResponse.json(
                 { message: "L'ID du créateur est invalide." },
                 { status: 400 }
             );
         }
-        const creatorId = new mongoose.Types.ObjectId(creator);
+        const creatorId = new mongoose.Types.ObjectId(createdBy);
 
         const item = new Item({
             name,
             description,
-            imagePath,
-            startingPrice,
+            imageURL,
+            initialPrice,
             status,
             startDate,
             endDate,
-            creator: creatorId,
+            createdBy: creatorId,
         });
 
         await item.save();

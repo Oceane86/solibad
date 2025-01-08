@@ -1,6 +1,7 @@
 // app/api/auth/[...nextauth].js
 
 import { connectToDB } from "@/mongodb/database";
+
 import NextAuth from "next-auth/next";
 import GoogleProvider from "next-auth/providers/google";
 import CredentialsProvider from "next-auth/providers/credentials";

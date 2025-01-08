@@ -4,7 +4,6 @@
 
 'use client';
 
-import NavBar from "@components/NavBar";
 import { useSession, signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
 
@@ -34,7 +33,6 @@ export default function ProfilePage() {
 
   return (
     <div className="container mx-auto p-4">
-      <NavBar/>
       <h1 className="text-2xl font-bold mb-4">Mon Profil</h1>
       <div className="bg-white shadow-sm rounded p-6 mb-4">
         <div className="flex items-center mb-6">
