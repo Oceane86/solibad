@@ -35,7 +35,6 @@ const DetailPage = () => {
     }, [params.id]);
 
     // Gestion du WebSocket avec Socket.io
-    // Gestion du WebSocket avec Socket.io
     useEffect(() => {
         if (!id) return; // Attendre que l'ID soit défini
 
@@ -118,7 +117,7 @@ const DetailPage = () => {
                                     <p className="mt-4">Prix de réserve : {item.initialPrice}€</p>
                                     <p className="mt-4">{messageDate}</p>
                                     <p className="mt-4">👤 <b>{usersOnline}</b> Enchèreurs en ligne</p>
-                                    <p className="mt-4">🔥 <b>12</b> Enchères</p>
+                                    <p className="mt-4">🔥 <b>0</b> Enchères</p>
                                 </div>
                             </div>
 
