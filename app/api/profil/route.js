@@ -1,27 +1,24 @@
 // app/api/profil/route.js
 
-import { connectToDB } from "@/mongodb/database"; 
+import { connectToDB } from "@/mongodb/database";
 import User from "@/models/User";
+export const dynamic = "force-dynamic";
+export async function GET(req) {
+  try {
+    const { searchParams } = new URL(req.url);
+    const email = searchParams.get("email");
 
-export default async function handler(req, res) {
-  const { method } = req;
+    await connectToDB();
 
-  await connectToDB();
+    const user = await User.findOne({ email });
 
-  if (method === "GET") {
-    try {
-      const user = await User.findOne({ email: req.query.email });
-
-      if (!user) {
-        return res.status(404).json({ message: "Utilisateur non trouvé." });
-      }
-
-      res.status(200).json({ user });
-    } catch (error) {
-      console.error(error); 
-      res.status(500).json({ message: error.message });
+    if (!user) {
+      return new Response(JSON.stringify({ message: "Utilisateur non trouvé." }), { status: 404 });
     }
-  } else {
-    res.status(400).json({ message: "Méthode non autorisée." });
+
+    return new Response(JSON.stringify({ user }), { status: 200 });
+  } catch (error) {
+    console.error(error);
+    return new Response(JSON.stringify({ message: error.message }), { status: 500 });
   }
 }
