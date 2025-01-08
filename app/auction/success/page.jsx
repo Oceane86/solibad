@@ -2,8 +2,7 @@
 
 "use client";
 import { useEffect, useState } from "react";
-import NavBar from "@components/NavBar";
-import Card from "@app/component/card";
+import Card from "@components/card/card";
 
 const Home = () => {
     const [items, setItems] = useState([]);  // ✅ Stocke les données récupérées
