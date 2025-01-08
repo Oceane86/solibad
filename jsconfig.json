@@ -1,17 +1,11 @@
 {
   "compilerOptions": {
-    "allowJs": true,
-    "jsx": "preserve",
-    "module": "esnext",
-    "moduleResolution": "node",
-    "strict": true,
-    "target": "es6"
-  },
-  "include": ["**/*.js", "**/*.jsx", "next-env.d.ts"],
-  "exclude": ["node_modules"],
     "baseUrl": ".",
     "paths": {
-      "@components/*": ["./*"]
+      "@/*": ["./*"],
+      "@mongodb/*": ["./mongodb/*"]
     }
-  }
+  },
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx"],
+  "exclude": ["node_modules"]
 }
