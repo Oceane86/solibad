@@ -1,9 +1,8 @@
 import React from "react";
 import styles from "./Card.module.css";
 import {useRouter} from "next/navigation";
-import Link from "next/link";
 
-const Card = ({ id, title, limitDate, imageUrl, status }) => {
+const Card = ({ id, title, limitDate, imageURL, status }) => {
     const router = useRouter();
     let statusContent = "";
     if (status === "En cours") {
@@ -24,7 +23,7 @@ const Card = ({ id, title, limitDate, imageUrl, status }) => {
     return (
         <a onClick={handleClick}>
             <div className={styles.card}>
-                <img src={imageUrl} alt={title} className={styles.image} />
+                <img src={imageURL} alt={title} className={styles.image} />
                 <div className={styles.content}>
                     <h3 className={styles.title}>{title}</h3>
                     <p className={styles.limitDate}>{limitDate}</p>

@@ -4,7 +4,6 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import NavBar from "@components/NavBar";
 
 const CreateAuction = () => {
     const [name, setName] = useState("");
@@ -50,7 +49,6 @@ const CreateAuction = () => {
 
     return (
         <div className="container">
-            <NavBar/>
             <h1>Créer une Enchère</h1>
             <form onSubmit={handleSubmit}>
                 <div>
