@@ -68,9 +68,8 @@ const DetailPage = () => {
                                 <img src={item.imageURL} alt={item.name} className="w-full rounded-xl max-w-96 xl:max-w-[500px]"/>
 
 
-
                                 <div className="sm:flex-col items-start xl:p-20">
-                                    <div className=" mt-6">
+                                    <div className="mt-6">
                                         <p>Dernière enchère:</p>
                                         <div className=" xl:flex xl:flex-row gap-10">
                                             <p className="font-bold px-5 py-3 sm:px-10 sm:py-5 bg-red-500 text-white rounded-lg text-center">{item.initialPrice}€</p>
@@ -79,7 +78,9 @@ const DetailPage = () => {
 
                                     </div>
                                     <p className="mt-4">Prix de réserve : {item.initialPrice}€</p>
-                                    <p className="mt-4">{ messageDate }</p>
+                                    <p className="mt-4">{messageDate}</p>
+                                    <p className="mt-4">👤 <b>145</b> Participants</p>
+                                    <p className="mt-4">🔥 <b>12</b> Enchères</p>
                                 </div>
                             </div>
 

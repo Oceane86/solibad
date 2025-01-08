@@ -16,7 +16,7 @@ const Card = ({ id, title, startDate, endDate, imageURL }) => {
 
         if (debut > Date.now()) {
             statusContent = "⚫ À venir";
-            messageDate = "Cette enchère n'est pas encore disponible.";
+            messageDate = "Cette enchère ne commence que le " + debut.toLocaleDateString();
         } else if (fin < Date.now()) {
             statusContent = "🔴 Terminé";
             messageDate = "Cette enchère est terminée.";
