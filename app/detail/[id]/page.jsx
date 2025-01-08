@@ -121,7 +121,7 @@ const DetailPage = () => {
                                     </div>
                                     <p className="mt-4">Prix de réserve : {item.initialPrice}€</p>
                                     <p className="mt-4">{messageDate}</p>
-                                    <p className="mt-4">👤 <b>{usersOnline}</b> Enchèreurs en ligne</p>
+                                    <p className="mt-4">👤 <b>{usersOnline}</b> acheteurs en ligne</p>
                                     <p className="mt-4">🔥 <b>0</b> Enchères</p>
                                 </div>
                             </div>
