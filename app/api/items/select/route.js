@@ -32,7 +32,6 @@ export async function GET(req) {
     }
 }
 
-// 🔹 Fonction pour gérer les headers CORS
 function createCorsResponse(response) {
     response.headers.set("Access-Control-Allow-Origin", "*"); // Autorise toutes les origines (⚠️ à restreindre en prod)
     response.headers.set("Access-Control-Allow-Methods", "GET, OPTIONS");
@@ -41,7 +40,6 @@ function createCorsResponse(response) {
     return response;
 }
 
-// 🔹 Gestion de la requête OPTIONS (prévol CORS)
 export function OPTIONS() {
     return createCorsResponse(new NextResponse(null, { status: 204 }));
 }

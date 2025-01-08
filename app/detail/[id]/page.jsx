@@ -41,22 +41,20 @@ const DetailPage = ({ params }) => {
 
     return (
         <Suspense>
-            <div>
-                <h1>Page de détail</h1>
-                <p><strong>ID reçu :</strong> {id}</p>
+            <div className="m-4">
+                <a href="/" className="underline mb-3">Revenir à la liste</a>
                 {item && (
                     <>
-                        <h2>{item.name}</h2>
-                        <p><strong>Description :</strong> {item.description}</p>
-                        <p><strong>Prix de départ :</strong> {item.startingPrice}</p>
-                        <p><strong>Statut :</strong> {item.status}</p>
-                        <p><strong>Date de début :</strong> {item.startDate}</p>
-                        <p><strong>Date de fin :</strong> {item.endDate}</p>
-                    </>
-                )}
-            </div>
-        </Suspense>
-    );
-};
+                        <img src={item.imageURL} alt={item.name} className="w-full rounded-xl" />
+                        <div className="mt-4 flex flex-col">
+                            <p className="px-4 py-2 bg-red-600 w-fit">Enchère actuelle: 236 €</p>
+                            <h1 className="text-2xl font-bold">Mise à prix: {item.initialPrice} €</h1>
+                        </div>
+                        </>
+                        )}
+                    </div>
+                    </Suspense>
+                    );
+                };
 
-export default DetailPage;
+                export default DetailPage;

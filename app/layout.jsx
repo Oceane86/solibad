@@ -1,6 +1,6 @@
 // app/layout.jsx
-// import "@styles/globals.css";
-import Provider from "@components/Provider";
+import Provider from "../components/Provider";
+
 import "./globals.css";
 
 const layout = ({ children }) => {
