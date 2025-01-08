@@ -42,7 +42,7 @@ const DetailPage = () => {
 
         // Vérifie si le socket n'est pas déjà initialisé
         if (!socketRef.current) {
-            socketRef.current = io("http://91.170.37.3:16384"); // Connexion au serveur WebSocket
+            socketRef.current = io("31.207.34.247:4000"); // Connexion au serveur WebSocket via mon VPS
 
             socketRef.current.emit("join_auction", id);
             console.log(`✅ Socket.io émis: join_auction ${id}`);
