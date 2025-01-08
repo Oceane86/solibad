@@ -2,18 +2,31 @@ import React from "react";
 import styles from "./Card.module.css";
 import {useRouter} from "next/navigation";
 
-const Card = ({ id, title, limitDate, imageURL, status }) => {
+const Card = ({ id, title, startDate, endDate, imageURL }) => {
     const router = useRouter();
     let statusContent = "";
-    if (status === "En cours") {
-        statusContent = "🟢 En cours";
-        limitDate = "Jusqu'au " + limitDate;
-    } else if (status === "A venir") {
-        statusContent = "⚫ A venir";
-        limitDate = "À partir du " + limitDate;
+    let messageDate = "";
+    const estDateValide = (date) => {
+        return !isNaN(Date.parse(date));
+    };
+
+    if (estDateValide(startDate) && estDateValide(endDate)) {
+        const debut = new Date(startDate);
+        const fin = new Date(endDate);
+
+        if (debut > Date.now()) {
+            statusContent = "⚫ À venir";
+            messageDate = "Cette enchère n'est pas encore disponible.";
+        } else if (fin < Date.now()) {
+            statusContent = "🔴 Terminé";
+            messageDate = "Cette enchère est terminée.";
+        } else {
+            statusContent = "🟢 En cours";
+            messageDate = "Du " + debut.toLocaleDateString() + " au " + fin.toLocaleDateString();
+        }
     } else {
-        statusContent = "🔴 Terminé";
-        limitDate = "Terminé le " + limitDate;
+        statusContent = "❌ Date invalide";
+        messageDate = "Les dates fournies ne sont pas valides.";
     }
 
     const handleClick = () => {
@@ -26,7 +39,7 @@ const Card = ({ id, title, limitDate, imageURL, status }) => {
                 <img src={imageURL} alt={title} className={styles.image} />
                 <div className={styles.content}>
                     <h3 className={styles.title}>{title}</h3>
-                    <p className={styles.limitDate}>{limitDate}</p>
+                    <p className={styles.limitDate}>{messageDate}</p>
                     <p className={styles.status}>{statusContent}</p>
                 </div>
             </div>
