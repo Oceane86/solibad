@@ -42,7 +42,12 @@ const DetailPage = () => {
 
         // Vérifie si le socket n'est pas déjà initialisé
         if (!socketRef.current) {
-            socketRef.current = io("31.207.34.247:4000"); // Connexion au serveur WebSocket via mon VPS
+            socketRef.current = io("wss://pauldecalf.fr", {
+                path: "/socket.io/",
+                transports: ["websocket", "polling"]
+            });
+
+
 
             socketRef.current.emit("join_auction", id);
             console.log(`✅ Socket.io émis: join_auction ${id}`);

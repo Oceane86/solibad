@@ -1,46 +1,32 @@
-const express = require("express");
-const http = require("http");
+const fs = require('fs');
+const https = require('https');
 const { Server } = require("socket.io");
-const cors = require("cors");
 
-const app = express();
-const server = http.createServer(app);
-const io = require("socket.io")(4000, {
+// Charger le certificat SSL de Let's Encrypt
+const options = {
+    key: fs.readFileSync('/etc/letsencrypt/live/pauldecalf.fr/privkey.pem'),
+    cert: fs.readFileSync('/etc/letsencrypt/live/pauldecalf.fr/fullchain.pem')
+};
+
+// Créer un serveur HTTPS
+const server = https.createServer(options);
+const io = new Server(server, {
     cors: {
-        origin: "*",  // Autorise toutes les origines (à adapter en production)
+        origin: "https://pauldecalf.fr",
+        methods: ["GET", "POST"]
     }
 });
 
-let auctions = {}; // Stocke le nombre d'utilisateurs par enchère
-
+// Gestion des connexions WebSocket
 io.on("connection", (socket) => {
-    console.log(`✅ Un utilisateur connecté: ${socket.id}`);
+    console.log("🟢 Un utilisateur connecté");
 
-    socket.on("join_auction", (auctionId) => {
-        console.log(`📢 L'utilisateur ${socket.id} a rejoint l'enchère ${auctionId}`);
-
-        // Assure-toi que l'objet de l'enchère existe
-        if (!auctions[auctionId]) {
-            auctions[auctionId] = 0;
-        }
-
-        auctions[auctionId]++;
-
-        // Envoie le nombre d'utilisateurs à tous les clients de l'enchère
-        io.emit("users_online", auctions[auctionId]);
-
-        console.log(`👥 Enchérisseurs en ligne pour ${auctionId}: ${auctions[auctionId]}`);
-
-        // Gère la déconnexion
-        socket.on("disconnect", () => {
-            console.log(`❌ Utilisateur déconnecté: ${socket.id}`);
-
-            if (auctions[auctionId]) {
-                auctions[auctionId] = Math.max(0, auctions[auctionId] - 1);
-            }
-
-            // Mise à jour du nombre d'enchérisseurs
-            io.emit("users_online", auctions[auctionId]);
-        });
+    socket.on("disconnect", () => {
+        console.log("🔴 Un utilisateur déconnecté");
     });
+});
+
+// Lancer le serveur sécurisé sur le port 4000
+server.listen(4000, () => {
+    console.log("🚀 Serveur WebSocket sécurisé sur https://pauldecalf.fr:4000");
 });
