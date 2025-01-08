@@ -16,6 +16,8 @@
     "bcrypt": "^5.1.1",
     "bcryptjs": "^2.4.3",
     "cloudinary": "^2.5.1",
+    "cors": "^2.8.5",
+    "express": "^4.21.2",
     "gray-matter": "^4.0.3",
     "mongodb": "^6.7.0",
     "mongoose": "^8.9.3",
@@ -28,7 +30,9 @@
     "react-responsive-carousel": "^3.2.23",
     "remark": "^15.0.1",
     "remark-html": "^16.0.1",
-    "sass": "^1.77.4"
+    "sass": "^1.77.4",
+    "socket.io": "^4.8.1",
+    "socket.io-client": "^4.8.1"
   },
   "devDependencies": {
     "@types/node": "22.10.5",

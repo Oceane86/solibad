@@ -1,7 +1,8 @@
 'use client';
 
-import { Suspense, useEffect, useState } from "react";
+import {Suspense, useEffect, useRef, useState} from "react";
 import { useParams } from "next/navigation";
+import io from "socket.io-client";
 
 const DetailPage = () => {
     const params = useParams();
@@ -9,15 +10,18 @@ const DetailPage = () => {
     const [item, setItem] = useState(null);
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [usersOnline, setUsersOnline] = useState(0);
+    const socketRef = useRef(null); // Stocke l'instance du socket
 
+// Récupération des données de l'enchère
     useEffect(() => {
-        const resolveParamsAndFetchItem = async () => {
-            try {
-                const resolvedId = await params.id;
-                setId(resolvedId);
+        const fetchItem = async () => {
+            if (!params.id) return; // Vérification de la présence d'un ID
 
-                // Récupérer les données liées à l'ID
-                const response = await fetch(`/api/items/select?id=${resolvedId}`);
+            setId(params.id);
+            try {
+                const response = await fetch(`/api/items/select?id=${params.id}`);
+                if (!response.ok) throw new Error("Erreur lors de la récupération des données");
                 const data = await response.json();
                 setItem(data);
             } catch (err) {
@@ -27,8 +31,42 @@ const DetailPage = () => {
             }
         };
 
-        resolveParamsAndFetchItem();
-    }, [params]);
+        fetchItem();
+    }, [params.id]);
+
+    // Gestion du WebSocket avec Socket.io
+    // Gestion du WebSocket avec Socket.io
+    useEffect(() => {
+        if (!id) return; // Attendre que l'ID soit défini
+
+        console.log(`🛠 Initialisation du socket pour l'enchère ${id}`);
+
+        // Vérifie si le socket n'est pas déjà initialisé
+        if (!socketRef.current) {
+            socketRef.current = io("http://localhost:4000");
+
+            socketRef.current.emit("join_auction", id);
+            console.log(`✅ Socket.io émis: join_auction ${id}`);
+
+            socketRef.current.on("users_online", (count) => {
+                console.log(`👥 Nombre d'enchérisseurs en ligne pour ${id}:`, count);
+                setUsersOnline(count);
+            });
+        }
+
+        return () => {
+            console.log(`❌ Déconnexion du socket pour l'enchère ${id}`);
+            if (socketRef.current) {
+                socketRef.current.off("users_online");
+                socketRef.current.disconnect();
+                socketRef.current = null; // Reset du socket
+            }
+        };
+    }, [id]);
+
+
+
+
 
     if (loading) return <p>Chargement...</p>;
     if (error) return <p style={{ color: "red" }}>❌ {error}</p>;
@@ -79,7 +117,7 @@ const DetailPage = () => {
                                     </div>
                                     <p className="mt-4">Prix de réserve : {item.initialPrice}€</p>
                                     <p className="mt-4">{messageDate}</p>
-                                    <p className="mt-4">👤 <b>145</b> Participants</p>
+                                    <p className="mt-4">👤 <b>{usersOnline}</b> Enchèreurs en ligne</p>
                                     <p className="mt-4">🔥 <b>12</b> Enchères</p>
                                 </div>
                             </div>
