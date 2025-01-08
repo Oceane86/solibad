@@ -1,4 +1,5 @@
 import { Server } from "socket.io";
+export const dynamic = "force-dynamic";
 
 let io;
 
