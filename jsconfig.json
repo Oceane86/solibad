@@ -1,7 +1,17 @@
 {
   "compilerOptions": {
+    "allowJs": true,
+    "jsx": "preserve",
+    "module": "esnext",
+    "moduleResolution": "node",
+    "strict": true,
+    "target": "es6"
+  },
+  "include": ["**/*.js", "**/*.jsx", "next-env.d.ts"],
+  "exclude": ["node_modules"],
+    "baseUrl": ".",
     "paths": {
-      "@*": ["./*"]
+      "@components/*": ["./*"]
     }
   }
 }

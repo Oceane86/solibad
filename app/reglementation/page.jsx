@@ -1,1 +1,0 @@
-// app/reglementation/page.jsx

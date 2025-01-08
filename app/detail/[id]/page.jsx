@@ -1,29 +1,23 @@
-"use client";
+'use client';
 
-import { Suspense } from "react";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
+import { useParams } from "next/navigation";
 
-const DetailPage = ({ params }) => {
-    const { id } = params;
+const DetailPage = () => {
+    const params = useParams();
+    const [id, setId] = useState(null);
     const [item, setItem] = useState(null);
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-
-        if (!id) {
-            return <p>❌ Aucun ID trouvé. Vérifiez l'URL ou la configuration.</p>;
-        }
-
-
-        const fetchItem = async () => {
+        const resolveParamsAndFetchItem = async () => {
             try {
-                const response = await fetch(`/api/items/select?id=${id}`);
+                const resolvedId = await params.id;
+                setId(resolvedId);
 
-                if (!response.ok) {
-                    throw new Error("Erreur lors de la récupération des données.");
-                }
-
+                // Récupérer les données liées à l'ID
+                const response = await fetch(`/api/items/select?id=${resolvedId}`);
                 const data = await response.json();
                 setItem(data);
             } catch (err) {
@@ -33,11 +27,35 @@ const DetailPage = ({ params }) => {
             }
         };
 
-        fetchItem();
-    }, [id]);
+        resolveParamsAndFetchItem();
+    }, [params]);
 
     if (loading) return <p>Chargement...</p>;
     if (error) return <p style={{ color: "red" }}>❌ {error}</p>;
+
+    const getMessageDate = () => {
+        if (!item || !item.startDate || !item.endDate) {
+            return "❌ Les dates fournies ne sont pas valides.";
+        }
+
+        const estDateValide = (date) => !isNaN(Date.parse(date));
+        const debut = new Date(item.startDate);
+        const fin = new Date(item.endDate);
+
+        if (!estDateValide(debut) || !estDateValide(fin)) {
+            return "❌ Les dates fournies ne sont pas valides.";
+        }
+
+        if (debut > Date.now()) {
+            return "⚫ Cette enchère n'est pas encore disponible.";
+        } else if (fin < Date.now()) {
+            return "🔴 Cette enchère est terminée.";
+        } else {
+            return `🟢 Du ${debut.toLocaleDateString()} au ${fin.toLocaleDateString()}`;
+        }
+    };
+
+    const messageDate = getMessageDate();
 
     return (
         <Suspense>
@@ -61,7 +79,7 @@ const DetailPage = ({ params }) => {
 
                                     </div>
                                     <p className="mt-4">Prix de réserve : {item.initialPrice}€</p>
-                                    <p className="mt-4">Du {new Date(item.startDate).toLocaleDateString()} au {new Date(item.endDate).toLocaleDateString()}</p>
+                                    <p className="mt-4">{ messageDate }</p>
                                 </div>
                             </div>
 
