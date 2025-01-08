@@ -41,7 +41,8 @@ const Home = () => {
                                 key={item._id}
                                 id={item._id}
                                 title={item.name}
-                                limitDate={item.endDate}
+                                startDate={item.startDate}
+                                endDate={item.endDate}
                                 imageURL={item.imageURL}
                                 status={item.status}
                             />

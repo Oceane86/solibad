@@ -39,6 +39,27 @@ const DetailPage = ({ params }) => {
     if (loading) return <p>Chargement...</p>;
     if (error) return <p style={{ color: "red" }}>❌ {error}</p>;
 
+    let messageDate = "";
+
+    const estDateValide = (date) => {
+        return !isNaN(Date.parse(date));
+    };
+
+    if (estDateValide(item.startDate) && estDateValide(item.endDate)) {
+        const debut = new Date(item.startDate);
+        const fin = new Date(item.endDate);
+
+        if (debut > Date.now()) {
+            messageDate = "⚫ Cette enchère n'est pas encore disponible.";
+        } else if (fin < Date.now()) {
+            messageDate = "🔴 Cette enchère est terminée.";
+        } else {
+            messageDate = "🟢 Du " + debut.toLocaleDateString() + " au " + fin.toLocaleDateString();
+        }
+    } else {
+        messageDate = "❌ Les dates fournies ne sont pas valides.";
+    }
+
     return (
         <Suspense>
             <div className="m-4">
@@ -61,7 +82,7 @@ const DetailPage = ({ params }) => {
 
                                     </div>
                                     <p className="mt-4">Prix de réserve : {item.initialPrice}€</p>
-                                    <p className="mt-4">Du {new Date(item.startDate).toLocaleDateString()} au {new Date(item.endDate).toLocaleDateString()}</p>
+                                    <p className="mt-4">{ messageDate }</p>
                                 </div>
                             </div>
 
