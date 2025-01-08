@@ -1,6 +1,8 @@
+// app/page.jsx
 "use client";
-import { useEffect, useState } from "react";
-import Card from "../components/card/card";
+import NavBar from "@components/NavBar";
+import { useState, useEffect } from "react";
+import Card from "@components/Card";
 
 const Home = () => {
     const [items, setItems] = useState([]);
@@ -31,8 +33,8 @@ const Home = () => {
     return (
         <>
             <div className="container mx-auto p-8">
-                {loading && <p>Chargement des enchères...</p>}  {}
-                {error && <p style={{ color: "red" }}>❌ {error}</p>}  {}
+                {loading && <p>Chargement des enchères...</p>}
+                {error && <p style={{ color: "red" }}>❌ {error}</p>}
 
                 <div className="grid gap-8 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
                     {items.length > 0 ? (
