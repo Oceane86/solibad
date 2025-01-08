@@ -3,11 +3,13 @@
 import {Suspense, useEffect, useRef, useState} from "react";
 import { useParams } from "next/navigation";
 import io from "socket.io-client";
+import Header from "@/components/Header";
 
 const DetailPage = () => {
     const params = useParams();
     const [id, setId] = useState(null);
     const [item, setItem] = useState(null);
+    const [bids, setBids] = useState(null);
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(true);
     const [usersOnline, setUsersOnline] = useState(0);
@@ -32,6 +34,26 @@ const DetailPage = () => {
         };
 
         fetchItem();
+    }, [params.id]);
+
+    useEffect(() => {
+        const fetchBids = async () => {
+            if (!params.id) return; // Vérification de la présence d'un ID
+
+            setId(params.id);
+            try {
+                const response = await fetch(`/api/bids/select?id=${params.id}`);
+                if (!response.ok) throw new Error("Erreur lors de la récupération des données");
+                const data = await response.json();
+                setBids(data);
+            } catch (err) {
+                setError(err.message);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchBids();
     }, [params.id]);
 
     // Gestion du WebSocket avec Socket.io
@@ -68,6 +90,18 @@ const DetailPage = () => {
         };
     }, [id]);
 
+    // Désormais on compte le nombre de bids pour afficher le nombre d'enchères
+    let nbBids = 0;
+    if (bids) {
+        nbBids = bids.length;
+    }
+    // Désormais enchereActuelle est la dernière enchère ayant le amount le plus élevé
+    let enchereActuelle = item?.initialPrice;
+    if (bids) {
+        enchereActuelle = bids.reduce((max, bid) => bid.amount > max ? bid.amount : max, 0);
+
+    }
+
 
 
 
@@ -101,6 +135,7 @@ const DetailPage = () => {
 
     return (
         <Suspense>
+            <Header/>
             <div className="m-4">
                 <a href="/" className="underline mb-3">Revenir à la liste</a>
                 {item && (
@@ -114,7 +149,7 @@ const DetailPage = () => {
                                     <div className="mt-6">
                                         <p>Dernière enchère:</p>
                                         <div className=" xl:flex xl:flex-row gap-10">
-                                            <p className="font-bold px-5 py-3 sm:px-10 sm:py-5 bg-red-500 text-white rounded-lg text-center">{item.initialPrice}€</p>
+                                            <p className="font-bold px-5 py-3 sm:px-10 sm:py-5 bg-red-500 text-white rounded-lg text-center">{enchereActuelle}€</p>
                                             <p className="font-bold px-5 py-3 sm:px-10 sm:py-5 bg-gray-50 border-2 rounded-lg text-center mt-6 xl:mt-0">Enchèrir</p>
                                         </div>
 
@@ -122,7 +157,7 @@ const DetailPage = () => {
                                     <p className="mt-4">Prix de réserve : {item.initialPrice}€</p>
                                     <p className="mt-4">{messageDate}</p>
                                     <p className="mt-4">👤 <b>{usersOnline}</b> acheteurs en ligne</p>
-                                    <p className="mt-4">🔥 <b>0</b> Enchères</p>
+                                    <p className="mt-4">🔥 <b>{ nbBids }</b> Enchères</p>
                                 </div>
                             </div>
 
