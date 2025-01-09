@@ -41,20 +41,6 @@ const handler = NextAuth({
     }),
   ],
 
-  secret: process.env.NEXTAUTH_SECRET,
-
-  cookies: {
-    sessionToken: {
-      name: `__Secure-next-auth.session-token`,
-      options: {
-        httpOnly: true,
-        sameSite: "none", 
-        path: "/",
-        secure: process.env.NODE_ENV === "production", 
-      },
-    },
-  },
-
   callbacks: {
     async session({ session }) {
       try {
@@ -108,7 +94,6 @@ const handler = NextAuth({
     },
 
     async redirect({ url, baseUrl }) {
-      // Redirection par défaut vers `baseUrl`
       return baseUrl;
     },
   },

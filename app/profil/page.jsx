@@ -25,6 +25,12 @@ export default function ProfilePage() {
   const [activeTab, setActiveTab] = useState("information");
 
   useEffect(() => {
+    if (status === "unauthenticated") {
+      router.push("/login");
+    }
+  }, [status, router]);
+
+  useEffect(() => {
     if (session?.user) {
       const fetchUserData = async () => {
         try {
@@ -51,7 +57,7 @@ export default function ProfilePage() {
     }
   }, [session]);
 
-  if (status === "loading") return <p>Chargement...</p>;
+  if (status === "loading") return <p className="text-center mt-10">Chargement...</p>;
 
   if (!session)
     return (
@@ -92,6 +98,14 @@ export default function ProfilePage() {
     } catch (error) {
       console.error(error);
       alert("Une erreur s'est produite.");
+    }
+  };
+
+  const handleSignOut = async () => {
+    try {
+      await signOut({ callbackUrl: "/" });
+    } catch (error) {
+      console.error("Erreur lors de la déconnexion :", error);
     }
   };
 
@@ -145,7 +159,7 @@ export default function ProfilePage() {
       </div>
 
       <button
-        onClick={() => signOut()}
+        onClick={handleSignOut} 
         className="mt-4 px-6 py-2 bg-red-500 text-white rounded hover:bg-red-600"
       >
         Se déconnecter
