@@ -140,20 +140,6 @@ const DetailPage = () => {
         }
     }, [item, session]);
 
-    // Gestion des enchères en temps réel
-    useEffect(() => {
-        if (!id || !socketRef.current) return;
-
-        socketRef.current.on("new_bid", (newBid) => {
-            console.log("🔥 Nouvelle enchère reçue via WebSocket:", newBid);
-            setBids((prevBids) => [...prevBids, newBid]);
-        });
-
-        return () => {
-            socketRef.current.off("new_bid");
-        };
-    }, [id]);
-
     let nbBids = 0;
     if (bids) {
         nbBids = bids.length;
@@ -286,42 +272,6 @@ const DetailPage = () => {
     };
 
     const messageDate = getMessageDate();
-
-    async function extendAuctionIfNeeded(itemId) {
-        const item = await Item.findById(itemId);
-        if (!item) return;
-
-        const now = new Date();
-        const endTime = new Date(item.endDate);
-
-        // Vérifier si l'enchère est dans les 5 dernières minutes
-        if (endTime - now <= 5 * 60 * 1000) {
-            const newEndTime = new Date(endTime.getTime() + 5 * 60 * 1000);
-            await Item.updateOne({ _id: itemId }, { endDate: newEndTime });
-
-            io.to(itemId).emit("auction_extended", { newEndTime });
-            console.log(`⏳ L'enchère ${itemId} a été prolongée jusqu'à ${newEndTime}`);
-        }
-    }
-
-
-    async function closeAuctions() {
-        const now = new Date();
-        const auctions = await Item.find({ endDate: { $lte: now } });
-
-        for (const auction of auctions) {
-            const highestBid = await Bids.findOne({ itemId: auction._id }).sort({ amount: -1 });
-
-            if (highestBid) {
-                console.log(`🎉 L'enchère pour ${auction.name} est terminée. Gagnant: ${highestBid.userId}`);
-                await Item.updateOne({ _id: auction._id }, { winner: highestBid.userId });
-                io.to(auction._id).emit("auction_ended", { winner: highestBid.userId });
-            }
-        }
-    }
-
-// Exécuter toutes les minutes
-    setInterval(closeAuctions, 60 * 1000);
 
     return (
         <Suspense>
