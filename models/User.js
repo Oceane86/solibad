@@ -13,7 +13,7 @@ const UserSchema = new mongoose.Schema({
     type: String, 
     required: function() { return !this.isGoogleUser; } 
   },
-  role: { type: String, enum: ['admin', 'visiteur'], default: 'visiteur' },
+  role: { type: String, enum: ['admin', 'visiteur'], default: 'user' },
   isGoogleUser: { type: Boolean, default: false },
   address: {
     street: { type: String },
