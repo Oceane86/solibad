@@ -78,9 +78,7 @@ const DetailPage = () => {
 
         console.log(`🛠 Initialisation du socket pour l'enchère ${id}`);
 
-        const socketUrl = process.env.NODE_ENV === "development"
-            ? "http://localhost:4000"  // Mode développement
-            : "wss://pauldecalf.fr:4000"; // 🔥 HTTPS en production
+        const socketUrl = "wss://pauldecalf.fr:4000"; // 🔥 HTTPS en production
 
         if (!socketRef.current) {
             socketRef.current = io(socketUrl, {
