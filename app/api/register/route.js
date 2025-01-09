@@ -9,10 +9,10 @@ export async function POST(req) {
         await connectToDB();
 
         const data = await req.json();
-        const { username, email, password, status = "visiteur" } = data;
+        const { username, firstname, lastname, email, password, status = "visiteur" } = data;
 
         // Validation de base
-        if (!username || !email || !password) {
+        if (!username || !firstname || !lastname || !email || !password) {
             return NextResponse.json({
                 message: "Tous les champs sont obligatoires"
             }, { status: 400 });
@@ -32,8 +32,10 @@ export async function POST(req) {
         // Création du nouvel utilisateur avec le mot de passe hashé
         const newUser = new User({
             username,
+            lastname,
+            firstname,
             email,
-            password: hashedPassword, // Utilisation du mot de passe hashé
+            password: hashedPassword, 
             status
         });
 
