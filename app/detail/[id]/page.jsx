@@ -1,3 +1,5 @@
+// app/detail/[id]/page.jsx
+
 'use client';
 
 import {Suspense, useEffect, useRef, useState} from "react";

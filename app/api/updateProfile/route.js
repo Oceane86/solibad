@@ -41,13 +41,13 @@ export async function PUT(req) {
     // Mise à jour des informations de l'utilisateur
     user.username = username;
     user.address = {
-      street: address || user.address?.street || "",
-      city: city || user.address?.city || "",
-      state: state || user.address?.state || "",
-      country: country || user.address?.country || "",
-      postalCode: postalCode || user.address?.postalCode || "",
+      street: address.street || user.address?.street || "",
+      city: address.city || user.address?.city || "",
+      state: address.state || user.address?.state || "",
+      country: address.country || user.address?.country || "",
+      postalCode: address.postalCode || user.address?.postalCode || "",
     };
-
+    
     // Sauvegarde des modifications dans la base de données
     await user.save({ validateModifiedOnly: true });
 

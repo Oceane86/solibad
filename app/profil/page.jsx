@@ -76,12 +76,12 @@ export default function ProfilePage() {
       <h1 className="text-2xl font-bold mb-6">Mon Profil</h1>
       <div className="flex items-center mb-6">
         <img
-          src={user.image || "/images/default-avatar.jpg"}
-          alt={user.name || "Utilisateur"}
+          src={user.image || "/assets/user_default.svg"}
+          alt={user.username || "Utilisateur"}
           className="w-20 h-20 object-cover rounded-full mr-6"
         />
         <div>
-          <h2 className="text-xl font-semibold">{user.name || "Nom de l'utilisateur"}</h2>
+          <h2 className="text-xl font-semibold">{user.username || "Nom de l'utilisateur"}</h2>
           <p className="text-gray-600 text-sm">{user.email || "Email non disponible"}</p>
         </div>
       </div>
