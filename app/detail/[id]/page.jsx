@@ -125,7 +125,6 @@ const DetailPage = () => {
         };
     }, [session?.user.id]);
 
-
     // Désormais on compte le nombre de bids pour afficher le nombre d'enchères
     let nbBids = 0;
     if (bids) {
