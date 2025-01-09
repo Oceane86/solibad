@@ -4,7 +4,6 @@
 import { fr } from "date-fns/locale";
 import { format } from "date-fns";
 import Calendar from "react-calendar";
-import "react-calendar/dist/Calendar.css";
 import { useState, useEffect } from "react";
 
 // Ajouter un état pour la gestion des notifications par e-mail
