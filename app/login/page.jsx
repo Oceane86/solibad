@@ -90,8 +90,8 @@ const Login = () => {
                     <p className="text-sm text-gray-600">Ou continuez avec</p>
                     <div className="flex justify-center mt-2">
                         <button
-                            className="flex items-center justify-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-gray-700 hover:bg-gray-50"
-                            onClick={() => signIn("google")}
+                            className="rs flex items-center justify-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-gray-700 hover:bg-gray-50"
+                            onClick={() => signIn('google')}
                         >
                             <img
                                 src="/assets/icone-google.svg"

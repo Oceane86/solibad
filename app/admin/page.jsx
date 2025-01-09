@@ -6,6 +6,7 @@ import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import Header from "@/components/Header";
 
 const AdminPage = () => {
   const { data: session, status } = useSession();
@@ -64,6 +65,7 @@ const AdminPage = () => {
 
   return (
     <div className="container mx-auto p-8">
+      <Header/>
       <h1>Mes Enchères</h1>
       {loading && <p>Chargement des enchères...</p>}
       {error && <p style={{ color: "red" }}>❌ {error}</p>}
