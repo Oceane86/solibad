@@ -1,10 +1,18 @@
-const http = require('http');
+const fs = require('fs');
+const https = require('https');
 const { Server } = require("socket.io");
 
-const server = http.createServer();
+// Charger les certificats SSL de Let's Encrypt
+const options = {
+    key: fs.readFileSync('/etc/letsencrypt/live/pauldecalf.fr/privkey.pem'),
+    cert: fs.readFileSync('/etc/letsencrypt/live/pauldecalf.fr/fullchain.pem')
+};
+
+// Créer un serveur HTTPS sécurisé
+const server = https.createServer(options);
 const io = new Server(server, {
     cors: {
-        origin: "http://pauldecalf.fr",
+        origin: "https://pauldecalf.fr", // 🔥 Remplace HTTP par HTTPS
         methods: ["GET", "POST"]
     }
 });
@@ -25,7 +33,7 @@ io.on("connection", (socket) => {
     });
 });
 
-// Démarrer le serveur WebSocket sur le port 4000
+// Démarrer le serveur WebSocket sécurisé sur le port 4000
 server.listen(4000, () => {
-    console.log("🚀 Serveur WebSocket en local sur http://localhost:4000");
+    console.log("🚀 Serveur WebSocket sécurisé sur https://pauldecalf.fr:4000");
 });

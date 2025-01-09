@@ -72,20 +72,21 @@ const DetailPage = () => {
         fetchBids();
     }, [params.id]);
 
+    // Gestion du WebSocket avec Socket.io
     useEffect(() => {
         if (!id) return;
 
         console.log(`🛠 Initialisation du socket pour l'enchère ${id}`);
 
         const socketUrl = process.env.NODE_ENV === "development"
-            ? "http://localhost:4000" // Mode développement (localhost)
-            : "wss://pauldecalf.fr"; // Mode production
+            ? "http://localhost:4000"  // Mode développement
+            : "wss://pauldecalf.fr:4000"; // 🔥 HTTPS en production
 
-        // Vérifier si le socket n'est pas déjà initialisé
         if (!socketRef.current) {
             socketRef.current = io(socketUrl, {
                 path: "/socket.io/",
-                transports: ["websocket", "polling"]
+                transports: ["websocket", "polling"],
+                secure: true // 🔥 Assurer une connexion sécurisée
             });
 
             socketRef.current.on("connect", () => {
@@ -95,8 +96,10 @@ const DetailPage = () => {
             });
 
             socketRef.current.on("users_online", (count) => {
-                console.log(`👥 Nombre d'enchérisseurs en ligne pour ${id}:`, count);
-                setUsersOnline(count);
+                console.log("📩 Réception de users_online :", count);
+                if (typeof count === "number" && count >= 0) {
+                    setUsersOnline(count);
+                }
             });
 
             socketRef.current.on("connect_error", (err) => {
@@ -104,7 +107,6 @@ const DetailPage = () => {
             });
         }
 
-        // Nettoyage à la destruction du composant ou changement d'ID
         return () => {
             console.log(`❌ Déconnexion du socket pour l'enchère ${id}`);
             if (socketRef.current) {
@@ -113,7 +115,7 @@ const DetailPage = () => {
                 socketRef.current = null;
             }
         };
-    }, [id]); // Dépendance unique : l'ID de l'enchère
+    }, [id]);
 
 
 
