@@ -29,8 +29,8 @@ const AdminPage = () => {
       if (session.user.role !== "admin") {
         setRedirectMessage("Vous n'avez pas les autorisations nécessaires pour accéder à cette page.");
         setTimeout(() => {
-          router.push("/");
-        }, 3000); // Redirige après 3 secondes
+          router.push("/"); // Redirige après 3 secondes
+        }, 3000);
         return;
       }
 
@@ -65,24 +65,43 @@ const AdminPage = () => {
 
   return (
     <div className="container mx-auto p-8">
-      <Header/>
-      <h1>Mes Enchères</h1>
+      <Header />
+      <h1 className="text-2xl font-bold mb-6">Mes Enchères</h1>
+
+      {/* Bouton de création d'enchère en haut */}
+      {!loading && !error && (
+        <Link href="/admin/create">
+          <button className="bg-green-500 text-white px-4 py-2 rounded mb-6 hover:bg-green-600 transition duration-300">
+            Créer une nouvelle enchère
+          </button>
+        </Link>
+      )}
+
       {loading && <p>Chargement des enchères...</p>}
-      {error && <p style={{ color: "red" }}>❌ {error}</p>}
+      {error && <p className="text-red-500">❌ {error}</p>}
 
       <div className="grid gap-8 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
         {items.length > 0 ? (
           items.map((item) => (
-            <div key={item._id} className="border p-4">
-              <h3>{item.name}</h3>
-              <p>{item.description}</p>
-              <p>Prix de départ: {item.initialPrice}€</p>
-              <p>Début: {new Date(item.startDate).toLocaleString()}</p>
-              <p>Fin: {new Date(item.endDate).toLocaleString()}</p>
+            <div key={item._id} className="border p-4 rounded-lg shadow-lg bg-white">
+              <h3 className="text-xl font-semibold text-gray-800">{item.name}</h3>
+              
+              {/* Limitation de la description à 3 lignes avec troncage */}
+              <p className="text-gray-600 mt-2 line-clamp-3">{item.description}</p>
+              
+              <p className="mt-4 text-gray-800">
+                <strong>Prix de départ:</strong> {item.initialPrice}€
+              </p>
+              <p className="text-gray-800">
+                <strong>Début:</strong> {new Date(item.startDate).toLocaleString()}
+              </p>
+              <p className="text-gray-800">
+                <strong>Fin:</strong> {new Date(item.endDate).toLocaleString()}
+              </p>
 
               <div className="mt-4">
                 <Link href={`/admin/edit/${item._id}`}>
-                  <button className="bg-blue-500 text-white px-4 py-2 rounded">
+                  <button className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition duration-300">
                     Modifier
                   </button>
                 </Link>
@@ -93,12 +112,6 @@ const AdminPage = () => {
           !loading && <p>Aucune enchère disponible.</p>
         )}
       </div>
-
-      {!loading && !error && (
-        <Link href="/admin/create">
-          <button className="bg-green-500 text-white px-4 py-2 rounded">Créer une nouvelle enchère</button>
-        </Link>
-      )}
     </div>
   );
 };

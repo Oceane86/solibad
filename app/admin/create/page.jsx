@@ -6,6 +6,7 @@ import { useState } from "react";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation"; 
+import Header from "@/components/Header";
 
 const CreateAuction = () => {
   const { data: session, status } = useSession();
@@ -69,71 +70,103 @@ const CreateAuction = () => {
   };
 
   return (
-    <div className="container">
-      <h1>Créer une Enchère</h1>
-      {error && <p style={{ color: "red" }}>{error}</p>}
-      {successMessage && <p style={{ color: "green" }}>{successMessage}</p>}
-      <form onSubmit={handleSubmit}>
+    <div className="container mx-auto p-6 max-w-2xl">
+      <Header/>
+      <h1 className="text-2xl font-bold mb-6">Créer une Enchère</h1>
+
+      {error && <p className="text-red-500 text-center mb-4">{error}</p>}
+      {successMessage && <p className="text-green-500 text-center mb-4">{successMessage}</p>}
+
+      <form onSubmit={handleSubmit} className="space-y-6">
         <div>
-          <label>Nom de l'enchère</label>
+          <label htmlFor="name" className="block text-sm font-semibold text-gray-700">Nom de l'enchère</label>
           <input
+            id="name"
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
             required
+            className="w-full p-3 mt-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
+
         <div>
-          <label>Description</label>
+          <label htmlFor="description" className="block text-sm font-semibold text-gray-700">Description</label>
           <textarea
+            id="description"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             required
+            className="w-full p-3 mt-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
+
         <div>
-          <label>Date de début</label>
+          <label htmlFor="startDate" className="block text-sm font-semibold text-gray-700">Date de début</label>
           <input
+            id="startDate"
             type="datetime-local"
             value={startDate}
             onChange={(e) => setStartDate(e.target.value)}
             required
+            className="w-full p-3 mt-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
+
         <div>
-          <label>Date de fin</label>
+          <label htmlFor="endDate" className="block text-sm font-semibold text-gray-700">Date de fin</label>
           <input
+            id="endDate"
             type="datetime-local"
             value={endDate}
             onChange={(e) => setEndDate(e.target.value)}
             required
+            className="w-full p-3 mt-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
+
         <div>
-          <label>Prix de départ</label>
+          <label htmlFor="initialPrice" className="block text-sm font-semibold text-gray-700">Prix de départ</label>
           <input
+            id="initialPrice"
             type="number"
             value={initialPrice}
             onChange={(e) => setInitialPrice(e.target.value)}
             required
+            className="w-full p-3 mt-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
+
         <div>
-          <label>Ajouter une image (facultatif)</label>
+          <label htmlFor="image" className="block text-sm font-semibold text-gray-700">Ajouter une image (facultatif)</label>
           <input
+            id="image"
             type="file"
             accept="image/*"
             onChange={(e) => setImage(e.target.files[0])}
+            className="w-full p-3 mt-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
-        <button type="submit" disabled={loading}>
-          {loading ? "Chargement..." : "Créer l'enchère"}
-        </button>
+
+        <div className="text-center">
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full bg-blue-500 text-white py-3 rounded-lg shadow-lg hover:bg-blue-600 transition duration-300"
+          >
+            {loading ? "Chargement..." : "Créer l'enchère"}
+          </button>
+        </div>
       </form>
+
       {!loading && !error && !successMessage && (
-        <Link href="/">
-          <button>Voir les enchères</button>
-        </Link>
+        <div className="mt-6 text-center">
+          <Link href="/">
+            <button className="w-full bg-gray-300 text-gray-700 py-3 rounded-lg shadow-sm hover:bg-gray-400 transition duration-300">
+              Voir les enchères
+            </button>
+          </Link>
+        </div>
       )}
     </div>
   );
