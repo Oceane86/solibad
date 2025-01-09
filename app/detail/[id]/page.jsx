@@ -21,6 +21,9 @@ const DetailPage = () => {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isChecked, setIsChecked] = useState(false);
     const [bidAmount, setBidAmount] = useState(0);
+    const [isAutoBids, setIsAutoBids] = useState(false);
+    const [maxBid, setMaxBid] = useState(0);
+    const [increment, setIncrement] = useState(0);
 
     // Récupération des données de l'enchère
     useEffect(() => {
@@ -98,6 +101,31 @@ const DetailPage = () => {
         };
     }, [id]);
 
+    // Récupération des données de l'enchère automatique concernant l'utilisateur
+    useEffect(() => {
+        const fetchItem = async () => {
+            // On fait un fetch avec l'id de l'utilisateur ensuite on verifie si l'utilisateur a une enchère automatique avec itemId = id
+
+            try {
+                const response = await fetch(`/api/bids/select?id=${session?.user.id}`);
+                if (!response.ok) throw new Error("Erreur lors de la récupération des données");
+                const data = await response.json();
+                console.log(data);
+                setBids(data);
+            } catch (err) {
+                setError(err.message);
+            }
+
+            // On définit les valeurs de maxBid et increment et setIsAutoBids à true si l'utilisateur a une enchère automatique
+            if (bids && bids.length > 0) {
+                setIsAutoBids(true);
+                setMaxBid(bids[0].maxBid);
+                setIncrement(bids[0].increment);
+            }
+        };
+    }, [session?.user.id]);
+
+
     // Désormais on compte le nombre de bids pour afficher le nombre d'enchères
     let nbBids = 0;
     if (bids) {
@@ -111,9 +139,6 @@ const DetailPage = () => {
     } else if (item) { // Vérifier que item est défini avant d'accéder à ses propriétés
         enchereActuelle = item.initialPrice;
     }
-
-
-
 
     // Gestion de la soumission d'une enchère
     const handleSubmitBid = async () => {
@@ -152,9 +177,6 @@ const DetailPage = () => {
         setIsSubmitting(false);
     };
 
-
-
-
     if (loading) return <p>Chargement...</p>;
     if (error) return <p style={{ color: "red" }}>❌ {error}</p>;
 
@@ -176,7 +198,7 @@ const DetailPage = () => {
         } else if (fin < Date.now()) {
             return "🔴 Cette enchère est terminée.";
         } else {
-            return `🟢 Du ${debut.toLocaleDateString()} au ${fin.toLocaleDateString()}`;
+            return `🟢 Du ${debut.toLocaleDateString()} au ${fin.toLocaleDateString()} à ${fin.toLocaleTimeString()}`;
         }
     };
 
@@ -191,19 +213,24 @@ const DetailPage = () => {
                     <>
                         <div className="mt-6 sm:flex sm:flex-col sm:items-center">
                             <div className="flex flex-col items-center sm:flex-row sm:gap-20 lg:gap-60 xl:gap-x-9 ">
+
                                 <img src={item.imageURL} alt={item.name} className="w-full rounded-xl max-w-96 xl:max-w-[500px]"/>
 
 
                                 <div className="sm:flex-col items-start xl:p-20">
+                                    <h1 className="text-2xl mt-6 sm:mt-0 font-bold max-w-[300px]">{item.name}</h1>
                                     <div className="mt-6">
                                         <p>Dernière enchère:</p>
                                         <div className=" xl:flex xl:flex-row gap-10">
                                             <p className="font-bold px-5 py-3 sm:px-10 sm:py-5 bg-red-500 text-white rounded-lg text-center">{enchereActuelle}€</p>
                                             {session && (
-                                                <button onClick={() => setShowModal(true)} className="font-bold px-5 py-3 sm:px-10 sm:py-5 bg-gray-50 border-2 rounded-lg text-center mt-6 xl:mt-0">Enchèrir</button>
+                                                <button onClick={() => setShowModal(true)}
+                                                        className="font-bold px-5 py-3 sm:px-10 sm:py-5 bg-gray-50 border-2 rounded-lg text-center mt-6 xl:mt-0">Enchèrir</button>
                                             )}
                                             {!session && (
-                                                <Link href="/login" className="font-bold px-5 py-3 sm:px-10 sm:py-5 bg-gray-50 border-2 rounded-lg text-center mt-6 xl:mt-0">Connectez-vous pour enchérir</Link>
+                                                <Link href="/login"
+                                                      className="font-bold px-5 py-3 sm:px-10 sm:py-5 bg-gray-50 border-2 rounded-lg text-center mt-6 xl:mt-0">Connectez-vous
+                                                    pour enchérir</Link>
                                             )}
                                         </div>
 
@@ -211,7 +238,7 @@ const DetailPage = () => {
                                     <p className="mt-4">Prix de réserve : {item.initialPrice}€</p>
                                     <p className="mt-4">{messageDate}</p>
                                     <p className="mt-4">👤 <b>{usersOnline}</b> acheteurs en ligne</p>
-                                    <p className="mt-4">🔥 <b>{ nbBids }</b> Enchères</p>
+                                    <p className="mt-4">🔥 <b>{nbBids}</b> Enchères</p>
                                 </div>
                             </div>
 
@@ -231,6 +258,41 @@ const DetailPage = () => {
                                         />
 
                                         <p className="mt-4 text-sm text-gray-500">Votre enchère doit être supérieure à {enchereActuelle}€</p>
+                                        <div className="mt-5">
+                                            <input
+                                                type="checkbox"
+                                                id="autoBids"
+                                                name="autoBids"
+                                                defaultChecked={isAutoBids}
+                                                className="mr-2"
+                                                onChange={(e) => setIsAutoBids(e.target.checked)}
+                                            />
+                                            <label htmlFor="autoBids" className="text-sm text-gray-500">Activez l'enchère automatique</label>
+                                        </div>
+                                        {isAutoBids && (
+                                            <>
+                                                <div className="mx-5 my-3">
+                                                    <label htmlFor="increment" className="text-sm text-gray-500 mr-3">Budget Max:</label>
+                                                    <input
+                                                        type="number"
+                                                        value={maxBid}
+                                                        onChange={(e) => setMaxBid(Number(e.target.value))}
+                                                        placeholder="Budget max"
+                                                        className="mr-2 w-fit"
+                                                    />
+                                                </div>
+                                                <div className="mx-5">
+                                                    <label htmlFor="increment" className="text-sm text-gray-500 mr-3">Incrément:</label>
+                                                    <input
+                                                        type="number"
+                                                        value={increment}
+                                                        onChange={(e) => setIncrement(Number(e.target.value))}
+                                                        placeholder="Incrément"
+                                                        className="mr-2"
+                                                    />
+                                                </div>
+                                            </>
+                                        )}
                                         <div className="mt-5">
                                             <input
                                                 type="checkbox"
