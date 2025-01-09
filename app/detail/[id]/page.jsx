@@ -140,6 +140,20 @@ const DetailPage = () => {
         }
     }, [item, session]);
 
+    // Gestion des enchères en temps réel
+    useEffect(() => {
+        if (!id || !socketRef.current) return;
+
+        socketRef.current.on("new_bid", (newBid) => {
+            console.log("🔥 Nouvelle enchère reçue via WebSocket:", newBid);
+            setBids((prevBids) => [...prevBids, newBid]);
+        });
+
+        return () => {
+            socketRef.current.off("new_bid");
+        };
+    }, [id]);
+
     let nbBids = 0;
     if (bids) {
         nbBids = bids.length;
