@@ -1,6 +1,4 @@
 // components/Agenda.jsx
-
-
 "use client";
 
 import { fr } from "date-fns/locale";
