@@ -4,8 +4,12 @@ import {Suspense, useEffect, useRef, useState} from "react";
 import { useParams } from "next/navigation";
 import io from "socket.io-client";
 import Header from "@/components/Header";
+import { useSession, signIn, signOut } from "next-auth/react";
+import Link from "next/link";
 
 const DetailPage = () => {
+    const [showModal, setShowModal] = useState(false);
+    const { data: session } = useSession();
     const params = useParams();
     const [id, setId] = useState(null);
     const [item, setItem] = useState(null);
@@ -153,7 +157,12 @@ const DetailPage = () => {
                                         <p>Dernière enchère:</p>
                                         <div className=" xl:flex xl:flex-row gap-10">
                                             <p className="font-bold px-5 py-3 sm:px-10 sm:py-5 bg-red-500 text-white rounded-lg text-center">{enchereActuelle}€</p>
-                                            <p className="font-bold px-5 py-3 sm:px-10 sm:py-5 bg-gray-50 border-2 rounded-lg text-center mt-6 xl:mt-0">Enchèrir</p>
+                                            {session && (
+                                                <button onClick={() => setShowModal(true)} className="font-bold px-5 py-3 sm:px-10 sm:py-5 bg-gray-50 border-2 rounded-lg text-center mt-6 xl:mt-0">Enchèrir</button>
+                                            )}
+                                            {!session && (
+                                                <Link href="/login" className="font-bold px-5 py-3 sm:px-10 sm:py-5 bg-gray-50 border-2 rounded-lg text-center mt-6 xl:mt-0">Connectez-vous pour enchérir</Link>
+                                            )}
                                         </div>
 
                                     </div>
@@ -163,6 +172,45 @@ const DetailPage = () => {
                                     <p className="mt-4">🔥 <b>{ nbBids }</b> Enchères</p>
                                 </div>
                             </div>
+
+                            {/* Modal */}
+                            {showModal && (
+                                <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 px-10">
+                                    <div className="bg-white p-6 rounded-lg shadow-lg">
+                                        <h2 className="text-lg font-bold">Confirmer votre enchère</h2>
+                                        <p className="mt-2">Êtes-vous sûr de vouloir enchérir ?</p>
+                                        <input
+                                            type="number"
+                                            placeholder="Montant de l'enchère"
+                                            min={enchereActuelle + 1}
+                                            defaultValue={enchereActuelle + 1}
+                                            className="mt-4 w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                                        />
+                                        <p className="mt-2 text-sm text-gray-500">Votre enchère doit être supérieure à {enchereActuelle}€</p>
+                                        <div className="mt-5">
+                                            <input
+                                                type="checkbox"
+                                                id="verify"
+                                                name="verify"
+                                                className="mr-2"
+                                            />
+                                            <label htmlFor="verify" className="mt-2 text-sm text-gray-500">En validant une enchère, le
+                                                participant s'engage à effectuer le paiement en cas de gain.</label>
+                                        </div>
+                                        <div className="mt-4 flex justify-end">
+                                        <button
+                                                onClick={() => setShowModal(false)}
+                                                className="mr-2 px-4 py-2 bg-gray-200 rounded-lg"
+                                            >
+                                                Annuler
+                                            </button>
+                                            <button className="px-4 py-2 bg-blue-600 text-white rounded-lg">
+                                                Suivant
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
 
                             <div className="flex flex-col xl:flex-row xl:gap-10">
                                 <div className="flex flex-col">

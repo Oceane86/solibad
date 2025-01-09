@@ -1,3 +1,4 @@
+
 'use client';
 import { useState } from "react";
 import { useRouter } from 'next/navigation';
@@ -49,6 +50,8 @@ export default function RegisterPage() {
                 },
                 body: JSON.stringify({
                     username: formData.username,
+                    lastname: formData.lastname,
+                    firstname: formData.firstname,
                     email: formData.email,
                     password: formData.password,
                     status: "visiteur",
@@ -94,6 +97,40 @@ export default function RegisterPage() {
                         {errors.username && <p className="text-red-500 text-sm mt-1">{errors.username}</p>}
                     </div>
 
+
+                    <div>
+                        <label htmlFor="lastname" className="block text-sm font-medium text-gray-700">
+                            Lastname
+                        </label>
+                        <input
+                            id="lastname"
+                            name="lastname"
+                            type="lastname"
+                            value={formData.lastname}
+                            onChange={handleChange}
+                            className="mt-1 w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                        />
+                        {errors.lastname && <p className="text-red-500 text-sm mt-1">{errors.lastname}</p>}
+                    </div>
+
+
+                    <div>
+                        <label htmlFor="firstname" className="block text-sm font-medium text-gray-700">
+                            Firstname
+                        </label>
+                        <input
+                            id="firstname"
+                            name="firstname"
+                            type="firstname"
+                            value={formData.firstname}
+                            onChange={handleChange}
+                            className="mt-1 w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                        />
+                        {errors.firstname && <p className="text-red-500 text-sm mt-1">{errors.firstname}</p>}
+                    </div>
+
+
+
                     <div>
                         <label htmlFor="email" className="block text-sm font-medium text-gray-700">
                             Email
@@ -137,19 +174,6 @@ export default function RegisterPage() {
                             className="mt-1 w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                         />
                         {errors.confirmPassword && <p className="text-red-500 text-sm mt-1">{errors.confirmPassword}</p>}
-                    </div>
-
-                    <div>
-                        <label htmlFor="description" className="block text-sm font-medium text-gray-700">
-                            Description (optionnel)
-                        </label>
-                        <textarea
-                            id="description"
-                            name="description"
-                            value={formData.description}
-                            onChange={handleChange}
-                            className="mt-1 w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                        />
                     </div>
 
                     {errors.form && (
