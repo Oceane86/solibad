@@ -13,7 +13,7 @@ const options = {
 };
 
 // Connexion à MongoDB
-mongoose.connect("mongodb://localhost:27017/your_database", {
+mongoose.connect("mongodb+srv://ocerakotomalala:vUACq9V4fmFiudZ1@cluster0.9n5av.mongodb.net/solibad", {
     useNewUrlParser: true,
     useUnifiedTopology: true,
 }).then(() => {
