@@ -1,4 +1,5 @@
 // components/Agenda.jsx
+
 "use client";
 
 import { fr } from "date-fns/locale";
@@ -6,14 +7,12 @@ import { format } from "date-fns";
 import Calendar from "react-calendar";
 import { useState, useEffect } from "react";
 
-// Ajouter un état pour la gestion des notifications par e-mail
 const Agenda = () => {
   const [items, setItems] = useState([]);
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
 
-  // Charger les enchères depuis l'API
   useEffect(() => {
     const fetchItems = async () => {
       const res = await fetch("/api/items/select");
@@ -23,13 +22,11 @@ const Agenda = () => {
     fetchItems();
   }, []);
 
-  // Filtrer les items pour obtenir les enchères à venir
   const upcomingItems = items.filter((item) => {
     const startDate = new Date(item.startDate);
     return startDate > new Date();
   });
 
-  // Fonction pour afficher un indicateur dans les cases du calendrier
   const getTileClassName = ({ date }) => {
     const isAuctionDay = items.some((item) => {
       const startDate = new Date(item.startDate);
@@ -39,7 +36,6 @@ const Agenda = () => {
     return isAuctionDay ? "bg-yellow-300 text-black font-bold rounded-full" : "";
   };
 
-  // Fonction pour envoyer un e-mail de notification (simulé)
   const handleEmailSubmit = async (e) => {
     e.preventDefault();
     if (!email) {
@@ -47,8 +43,7 @@ const Agenda = () => {
       return;
     }
 
-    // Simuler l'envoi d'un e-mail
-    const response = await fetch("/api/subscribe", {
+    const response = await fetch("/api/subscribe/", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -64,25 +59,33 @@ const Agenda = () => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-6">
-      <h1 className="text-3xl font-bold text-center mb-6">Agenda des Enchères</h1>
-      
+    <div className="max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-md">
+      <h1 className="text-4xl font-extrabold text-center text-gray-800 mb-8">
+        Agenda des Enchères
+      </h1>
+
       {/* Calendrier */}
-      <Calendar
-        onChange={setSelectedDate}
-        value={selectedDate}
-        locale="fr-FR"
-        tileClassName={getTileClassName}
-        className="shadow-lg rounded-lg"
-      />
-      
-      <div className="mt-8">
-        <h2 className="text-xl font-semibold mb-4">Enchères à venir :</h2>
-        <ul className="space-y-4">
+      <div className="flex justify-center">
+        <Calendar
+          onChange={setSelectedDate}
+          value={selectedDate}
+          locale="fr-FR"
+          tileClassName={getTileClassName}
+          className="calendar-custom w-full max-w-md"
+        />
+      </div>
+
+      {/* Liste des enchères */}
+      <div className="mt-10">
+        <h2 className="text-2xl font-bold text-gray-800 mb-6">Enchères à venir :</h2>
+        <ul className="space-y-6">
           {upcomingItems.length > 0 ? (
             upcomingItems.map((item) => (
-              <li key={item._id} className="p-4 bg-gray-100 rounded-lg shadow-md">
-                <h3 className="text-lg font-bold">{item.name}</h3>
+              <li
+                key={item._id}
+                className="p-4 bg-gray-100 rounded-lg shadow-md hover:bg-gray-200 transition"
+              >
+                <h3 className="text-lg font-semibold text-gray-800">{item.name}</h3>
                 <p className="text-gray-700">{item.description}</p>
                 <p className="text-sm text-gray-600 mt-2">
                   Début : {format(new Date(item.startDate), "PPpp", { locale: fr })} - Fin :{" "}
@@ -96,22 +99,30 @@ const Agenda = () => {
         </ul>
       </div>
 
-      {/* Formulaire de notification par e-mail */}
-      <div className="mt-8">
-        <h2 className="text-xl font-semibold mb-4">Recevez une notification pour la prochaine enchère</h2>
-        <form onSubmit={handleEmailSubmit} className="flex flex-col space-y-4">
+            {/* Formulaire de notification */}
+            <div className="mt-10 bg-blue-50 p-6 rounded-lg">
+        <h2 className="text-2xl font-bold text-gray-800 mb-4">
+          Recevez une notification pour la prochaine enchère
+        </h2>
+        <form
+          onSubmit={handleEmailSubmit}
+          className="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-4"
+        >
           <input
             type="email"
-            className="p-2 border rounded-md"
+            className="flex-1 p-3 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
             placeholder="Entrez votre email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
           />
-          <button type="submit" className="p-2 bg-blue-500 text-white rounded-md">
-            S'abonner aux notifications
+          <button
+            type="submit"
+            className="px-6 py-3 bg-blue-500 text-white font-semibold rounded-md shadow-md hover:bg-blue-600 transition"
+          >
+            S'abonner
           </button>
-          {message && <p className="text-sm text-gray-700">{message}</p>}
         </form>
+        {message && <p className="mt-4 text-sm text-gray-700">{message}</p>}
       </div>
     </div>
   );

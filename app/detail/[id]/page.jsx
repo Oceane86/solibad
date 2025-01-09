@@ -9,6 +9,7 @@ import Header from "@/components/Header";
 import { useSession, signIn, signOut } from "next-auth/react";
 import Link from "next/link";
 import ReCAPTCHA from "react-google-recaptcha";
+
 const DetailPage = () => {
     const [showModal, setShowModal] = useState(false);
     const { data: session } = useSession();
@@ -221,7 +222,7 @@ const DetailPage = () => {
                                 <div className="sm:flex-col items-start xl:p-20">
                                     <h1 className="text-2xl mt-6 sm:mt-0 font-bold max-w-[300px]">{item.name}</h1>
                                     <div className="mt-6">
-                                        <p>Dernière enchère:</p>
+                                        <p>Dernière enchère :</p>
                                         <div className=" xl:flex xl:flex-row gap-10">
                                             <p className="font-bold px-5 py-3 sm:px-10 sm:py-5 bg-red-500 text-white rounded-lg text-center">{enchereActuelle}€</p>
                                             {session && (
@@ -273,7 +274,7 @@ const DetailPage = () => {
                                         {isAutoBids && (
                                             <>
                                                 <div className="mx-5 my-3">
-                                                    <label htmlFor="increment" className="text-sm text-gray-500 mr-3">Budget Max:</label>
+                                                    <label htmlFor="increment" className="text-sm text-gray-500 mr-3">Budget Max :</label>
                                                     <input
                                                         type="number"
                                                         value={maxBid}
@@ -283,7 +284,7 @@ const DetailPage = () => {
                                                     />
                                                 </div>
                                                 <div className="mx-5">
-                                                    <label htmlFor="increment" className="text-sm text-gray-500 mr-3">Incrément:</label>
+                                                    <label htmlFor="increment" className="text-sm text-gray-500 mr-3">Incrément :</label>
                                                     <input
                                                         type="number"
                                                         value={increment}
