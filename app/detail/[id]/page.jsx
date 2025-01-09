@@ -79,7 +79,7 @@ const DetailPage = () => {
         console.log(`🛠 Initialisation du socket pour l'enchère ${id}`);
 
         if (!socketRef.current) {
-            socketRef.current = io("wss://pauldecalf.fr", {
+            socketRef.current = io("https://pauldecalf.fr/", {
                 path: "/socket.io/",
                 transports: ["websocket", "polling"]
             });
