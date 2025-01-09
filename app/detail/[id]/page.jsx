@@ -287,7 +287,7 @@ const DetailPage = () => {
                                     <h1 className="text-2xl mt-6 sm:mt-0 font-bold max-w-[300px]">{item.name}</h1>
                                     <div className="mt-6">
                                         <p>Dernière enchère :</p>
-                                        <div className=" xl:flex xl:flex-row gap-10">
+                                        <div className=" flex  flex-col xl:flex-row gap-2">
                                             <p className="font-bold px-5 py-3 sm:px-10 sm:py-5 bg-red-500 text-white rounded-lg text-center">{enchereActuelle}€</p>
                                             {session && (
                                                 <button onClick={() => setShowModal(true)}
