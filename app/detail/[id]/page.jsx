@@ -290,7 +290,7 @@ const DetailPage = () => {
 
     return (
         <Suspense>
-            <Header/>
+            <Header page={"detail"} />
             <div className="m-4">
                 <a href="/" className="underline mb-3">Revenir à la liste</a>
                 {item && (

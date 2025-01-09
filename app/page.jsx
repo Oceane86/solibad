@@ -28,10 +28,9 @@ const Home = () => {
 
         fetchItems();
     }, []);
-
     return (
         <>
-            <Header/>
+            <Header page={"accueil"} />
             <div className="container mx-auto p-8">
                 {loading && <p>Chargement des enchères...</p>}
                 {error && <p style={{ color: "red" }}>❌ {error}</p>}
