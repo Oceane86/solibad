@@ -1,24 +1,31 @@
 'use client';
 
-import { Suspense, useEffect, useState } from "react";
+import {Suspense, useEffect, useRef, useState} from "react";
 import { useParams } from "next/navigation";
-
+import io from "socket.io-client";
+import Header from "@/components/Header";
+import { useSession, signIn, signOut } from "next-auth/react";
+import Link from "next/link";
+import ReCAPTCHA from "react-google-recaptcha";
 const DetailPage = () => {
+    const [showModal, setShowModal] = useState(false);
+    const { data: session } = useSession();
     const params = useParams();
     const [id, setId] = useState(null);
     const [item, setItem] = useState(null);
+    const [bids, setBids] = useState(null);
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(true);
-    const [showPopup, setShowPopup] = useState(false); // State pour gérer l'affichage de la popup
 
+    // Récupération des données de l'enchère
     useEffect(() => {
-        const resolveParamsAndFetchItem = async () => {
-            try {
-                const resolvedId = await params.id;
-                setId(resolvedId);
+        const fetchItem = async () => {
+            if (!params.id) return; // Vérification de la présence d'un ID
 
-                // Récupérer les données liées à l'ID
-                const response = await fetch(`/api/items/select?id=${resolvedId}`);
+            setId(params.id);
+            try {
+                const response = await fetch(`/api/items/select?id=${params.id}`);
+                if (!response.ok) throw new Error("Erreur lors de la récupération des données");
                 const data = await response.json();
                 setItem(data);
             } catch (err) {
@@ -28,8 +35,120 @@ const DetailPage = () => {
             }
         };
 
-        resolveParamsAndFetchItem();
-    }, [params]);
+        fetchItem();
+    }, [params.id]);
+
+    // Récupération des bids de l'enchère
+    useEffect(() => {
+        const fetchBids = async () => {
+            if (!params.id) return; // Vérification de la présence d'un ID
+
+            setId(params.id);
+            try {
+                const response = await fetch(`/api/bids/select?id=${params.id}`);
+                if (!response.ok) throw new Error("Erreur lors de la récupération des données");
+                const data = await response.json();
+                setBids(data);
+            } catch (err) {
+                setError(err.message);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchBids();
+    }, [params.id]);
+
+    // Gestion du WebSocket avec Socket.io
+    useEffect(() => {
+        if (!id) return; // Attendre que l'ID soit défini
+
+        console.log(`🛠 Initialisation du socket pour l'enchère ${id}`);
+
+        // Vérifie si le socket n'est pas déjà initialisé
+        if (!socketRef.current) {
+            socketRef.current = io("wss://pauldecalf.fr", {
+                path: "/socket.io/",
+                transports: ["websocket", "polling"]
+            });
+
+
+
+            socketRef.current.emit("join_auction", id);
+            console.log(`✅ Socket.io émis: join_auction ${id}`);
+
+            socketRef.current.on("users_online", (count) => {
+                console.log(`👥 Nombre d'enchérisseurs en ligne pour ${id}:`, count);
+                setUsersOnline(count);
+            });
+        }
+
+        return () => {
+            console.log(`❌ Déconnexion du socket pour l'enchère ${id}`);
+            if (socketRef.current) {
+                socketRef.current.off("users_online");
+                socketRef.current.disconnect();
+                socketRef.current = null; // Reset du socket
+            }
+        };
+    }, [id]);
+
+    // Désormais on compte le nombre de bids pour afficher le nombre d'enchères
+    let nbBids = 0;
+    if (bids) {
+        nbBids = bids.length;
+    }
+
+    // Désormais enchereActuelle est la dernière enchère ayant le amount le plus élevé
+    let enchereActuelle = 0;
+    if (bids && bids.length > 0) {
+        enchereActuelle = bids.reduce((max, bid) => bid.amount > max ? bid.amount : max, 0);
+    } else if (item) { // Vérifier que item est défini avant d'accéder à ses propriétés
+        enchereActuelle = item.initialPrice;
+    }
+
+
+
+
+    // Gestion de la soumission d'une enchère
+    const handleSubmitBid = async () => {
+        if (!isChecked) return alert("Vous devez cocher la case pour enchérir.");
+        if (isSubmitting) return;
+        if (bidAmount <= enchereActuelle) return alert("L'enchère doit être supérieure à la précédente.");
+
+        setIsSubmitting(true);
+        try {
+            const response = await fetch("/api/bids/create", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    userId: session?.user.id,
+                    itemId: id,
+                    amount: bidAmount,
+                    status: "pending",
+                    autoBid: false
+                })
+            });
+
+            if (!response.ok) {
+                const data = await response.json();
+                throw new Error(data.message || "Erreur lors de la soumission de l'enchère.");
+            }
+
+            alert("Votre enchère a été soumise avec succès !");
+            setShowModal(false);
+            setBids([...bids, { amount: bidAmount, userId: session?.user.id }]); // Ajout dynamique
+
+        } catch (error) {
+            console.error("Erreur lors de la soumission de l'enchère:", error);
+            alert(`Une erreur est survenue: ${error.message}`);
+        }
+
+        setIsSubmitting(false);
+    };
+
+
+
 
     if (loading) return <p>Chargement...</p>;
     if (error) return <p style={{ color: "red" }}>❌ {error}</p>;
@@ -65,6 +184,7 @@ const DetailPage = () => {
 
     return (
         <Suspense>
+            <Header/>
             <div className="m-4">
                 <a href="/" className="underline mb-3">Revenir à la liste</a>
                 {item && (
@@ -73,23 +193,59 @@ const DetailPage = () => {
                             <div className="flex flex-col items-center sm:flex-row sm:gap-20 lg:gap-60 xl:gap-x-9 ">
                                 <img src={item.imageURL} alt={item.name} className="w-full rounded-xl max-w-96 xl:max-w-[500px]"/>
 
+
+
                                 <div className="sm:flex-col items-start xl:p-20">
-                                    <div className=" mt-6">
+                                    <div className="mt-6">
                                         <p>Dernière enchère:</p>
                                         <div className=" xl:flex xl:flex-row gap-10">
                                             <p className="font-bold px-5 py-3 sm:px-10 sm:py-5 bg-red-500 text-white rounded-lg text-center">{item.initialPrice}€</p>
-                                            <p 
-                                                onClick={togglePopup} // Afficher la popup lorsqu'on clique
-                                                className="font-bold px-5 py-3 sm:px-10 sm:py-5 bg-gray-50 border-2 rounded-lg text-center mt-6 xl:mt-0 cursor-pointer"
-                                            >
-                                                Enchèrir
-                                            </p>
+                                            <p className="font-bold px-5 py-3 sm:px-10 sm:py-5 bg-gray-50 border-2 rounded-lg text-center mt-6 xl:mt-0">Enchèrir</p>
                                         </div>
                                     </div>
                                     <p className="mt-4">Prix de réserve : {item.initialPrice}€</p>
-                                    <p className="mt-4">{ messageDate }</p>
+                                    <p className="mt-4">{messageDate}</p>
+                                    <p className="mt-4">👤 <b>{usersOnline}</b> acheteurs en ligne</p>
+                                    <p className="mt-4">🔥 <b>{ nbBids }</b> Enchères</p>
                                 </div>
                             </div>
+
+                            {/* Modal */}
+                            {showModal && (
+                                <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 px-10">
+                                    <div className="bg-white p-6 rounded-lg shadow-lg">
+                                        <h2 className="text-lg font-bold">Confirmer votre enchère</h2>
+                                        <input
+                                            type="number"
+                                            value={bidAmount}
+                                            onChange={(e) => setBidAmount(Number(e.target.value))}
+                                            placeholder="Montant de l'enchère"
+                                            min={enchereActuelle + 1}
+                                            defaultValue={enchereActuelle + 1}
+                                            className="mt-4 w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                                        />
+
+                                        <p className="mt-4 text-sm text-gray-500">Votre enchère doit être supérieure à {enchereActuelle}€</p>
+                                        <div className="mt-5">
+                                            <input
+                                                type="checkbox"
+                                                id="verify"
+                                                name="verify"
+                                                className="mr-2"
+                                                onChange={(e) => setIsChecked(e.target.checked)}
+                                            />
+                                            <label htmlFor="verify" className="text-sm text-gray-500">
+                                                En validant une enchère, le participant s'engage à effectuer le paiement en cas de gain.
+                                            </label>
+                                        </div>
+
+                                        <div className="mt-4 flex justify-end">
+                                            <button onClick={() => setShowModal(false)} className="mr-2 px-4 py-2 bg-gray-200 rounded-lg">Annuler</button>
+                                            <button disabled={!isChecked || isSubmitting} onClick={handleSubmitBid} className={`px-4 py-2 rounded-lg ${isChecked ? "bg-blue-600 text-white" : "bg-gray-300 cursor-not-allowed"}`}>Suivant</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
 
                             <div className="flex flex-col xl:flex-row xl:gap-10">
                                 <div className="flex flex-col">

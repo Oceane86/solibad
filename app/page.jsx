@@ -2,7 +2,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import Card from "../components/card/card";
-
+import Header from "../components/Header";
 const Home = () => {
     const [items, setItems] = useState([]);
     const [error, setError] = useState(null);
@@ -31,6 +31,7 @@ const Home = () => {
 
     return (
         <>
+            <Header/>
             <div className="container mx-auto p-8">
                 {loading && <p>Chargement des enchères...</p>}
                 {error && <p style={{ color: "red" }}>❌ {error}</p>}
