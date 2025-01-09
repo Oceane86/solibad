@@ -1,4 +1,4 @@
-// app/api/updateProfile/route.js
+// app/api/profil/update/route.js
 import { connectToDB } from "@/mongodb/database";
 import User from "@/models/User";
 import { NextResponse } from "next/server";
@@ -8,23 +8,25 @@ export async function PUT(req) {
     // Connexion à la base de données
     await connectToDB();
 
-    // Vérification que la requête contient un corps valide
+    // Extraction des données envoyées dans la requête
     const data = await req.json();
-    if (!data || Object.keys(data).length === 0) {
-      return NextResponse.json(
-        { message: "Aucune donnée envoyée dans la requête." },
-        { status: 400 }
-      );
-    }
-
     console.log("Données reçues :", data);
 
-    const { username, email, address, city, state, country, postalCode } = data;
+    const { username, email, address } = data;
 
     // Vérification que les champs nécessaires sont présents
     if (!username || !email) {
       return NextResponse.json(
         { message: "Nom d'utilisateur et email sont obligatoires." },
+        { status: 400 }
+      );
+    }
+
+    // Validation de l'email (ajoute une vérification simple de l'email)
+    const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
+    if (!emailRegex.test(email)) {
+      return NextResponse.json(
+        { message: "L'email fourni n'est pas valide." },
         { status: 400 }
       );
     }
@@ -38,15 +40,19 @@ export async function PUT(req) {
       );
     }
 
-    // Mise à jour des informations de l'utilisateur
+    // Mise à jour du nom d'utilisateur et de l'adresse
     user.username = username;
-    user.address = {
-      street: address || user.address?.street || "",
-      city: city || user.address?.city || "",
-      state: state || user.address?.state || "",
-      country: country || user.address?.country || "",
-      postalCode: postalCode || user.address?.postalCode || "",
-    };
+
+    if (address) {
+      // Mise à jour de l'adresse (ajoute des vérifications pour chaque champ)
+      user.address = {
+        street: address.street || user.address?.street || "",
+        city: address.city || user.address?.city || "",
+        state: address.state || user.address?.state || "",
+        country: address.country || user.address?.country || "",
+        postalCode: address.postalCode || user.address?.postalCode || "",
+      };
+    }
 
     // Sauvegarde des modifications dans la base de données
     await user.save({ validateModifiedOnly: true });
@@ -57,7 +63,8 @@ export async function PUT(req) {
       { status: 200 }
     );
   } catch (error) {
-    console.error("Erreur serveur:", error.message);
+    // En cas d'erreur serveur
+    console.error("Erreur serveur:", error.message, error.stack);
     return NextResponse.json(
       { message: "Erreur lors de la mise à jour du profil." },
       { status: 500 }
