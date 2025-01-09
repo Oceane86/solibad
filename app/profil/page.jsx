@@ -1,4 +1,5 @@
 // app/profil/page.jsx
+
 "use client";
 
 import Header from "@/components/Header";
@@ -23,10 +24,8 @@ export default function ProfilePage() {
   });
   const [activeTab, setActiveTab] = useState("information");
 
-  // Effect pour charger les données utilisateur depuis l'API
   useEffect(() => {
     if (session?.user) {
-      // Récupération des données utilisateur depuis l'API
       const fetchUserData = async () => {
         try {
           const response = await fetch(`/api/user/${session.user.id}`);
@@ -104,13 +103,17 @@ export default function ProfilePage() {
       <div className="tabs">
         <ul className="flex space-x-4 border-b">
           <li
-            className={`tab tab-bordered ${activeTab === "information" ? "tab-active" : ""}`}
+            className={`tab cursor-pointer ${
+              activeTab === "information" ? "border-b-2 border-black" : ""
+            }`}
             onClick={() => setActiveTab("information")}
           >
             Modifier mes informations
           </li>
           <li
-            className={`tab tab-bordered ${activeTab === "profil" ? "tab-active" : ""}`}
+            className={`tab cursor-pointer ${
+              activeTab === "profil" ? "border-b-2 border-black" : ""
+            }`}
             onClick={() => setActiveTab("profil")}
           >
             Profil
