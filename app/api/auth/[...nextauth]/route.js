@@ -50,7 +50,6 @@ const handler = NextAuth({
     async session({ session }) {
       try {
         console.log("Session callback:", session);
-
         await connectToDB();
         const sessionUser = await User.findOne({ email: session.user.email });
 

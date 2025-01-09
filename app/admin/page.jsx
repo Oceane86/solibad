@@ -4,24 +4,32 @@
 
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 
 const AdminPage = () => {
   const { data: session, status } = useSession();
+  const router = useRouter();
   const [items, setItems] = useState([]);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [redirectMessage, setRedirectMessage] = useState(null);
 
   useEffect(() => {
     const fetchItems = async () => {
-      // Vérifier si l'utilisateur est authentifié
-      if (status === "loading") {
-        return; // Attendre que le statut soit "authenticated" ou "unauthenticated"
-      }
+      if (status === "loading") return;
 
       if (status !== "authenticated") {
-        setError("Vous devez être connecté pour voir vos enchères.");
-        setLoading(false);
+        router.push("/login");
+        return;
+      }
+
+      // Vérification si l'utilisateur a le rôle "admin"
+      if (session.user.role !== "admin") {
+        setRedirectMessage("Vous n'avez pas les autorisations nécessaires pour accéder à cette page.");
+        setTimeout(() => {
+          router.push("/");
+        }, 3000); // Redirige après 3 secondes
         return;
       }
 
@@ -43,7 +51,16 @@ const AdminPage = () => {
     };
 
     fetchItems();
-  }, [status, session]); // Relancer la requête lorsque le statut ou la session change
+  }, [status, session, router]);
+
+  if (redirectMessage) {
+    return (
+      <div className="container mx-auto p-8 text-center">
+        <p className="text-red-500 text-lg">{redirectMessage}</p>
+        <p>Vous serez redirigé vers l'accueil dans quelques secondes...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto p-8">
