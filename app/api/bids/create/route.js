@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
 import { connectToDB } from "@/mongodb/database";
-
 import Bids from "@/models/Bids";
 import mongoose from "mongoose";
 
@@ -8,9 +7,8 @@ export async function POST(req) {
     try {
         await connectToDB();
 
-        let data;
-
         const contentType = req.headers.get("content-type") || "";
+        let data;
 
         if (contentType.includes("application/json")) {
             data = await req.json();
@@ -24,11 +22,11 @@ export async function POST(req) {
             );
         }
 
-        const { userId, itemId, amount, bidDate, status, autoBid, createdAt } = data;
+        const { userId, itemId, amount, status, autoBid } = data;
 
-        console.log("Données du formulaire reçues:", data);
+        console.log("Données reçues:", data);
 
-        if (!userId || !itemId || !amount || !bidDate || !status || !autoBid || !createdAt) {
+        if (!userId || !itemId || !amount || !status) {
             return NextResponse.json(
                 { message: "Tous les champs requis doivent être remplis." },
                 { status: 400 }
@@ -41,23 +39,28 @@ export async function POST(req) {
                 { status: 400 }
             );
         }
-        const creatorId = new mongoose.Types.ObjectId(userId);
 
-        const bids = new Bids({
-            userId,
-            itemId,
+        if (!mongoose.Types.ObjectId.isValid(itemId)) {
+            return NextResponse.json(
+                { message: "L'ID de l'objet est invalide." },
+                { status: 400 }
+            );
+        }
+
+        const bid = new Bids({
+            userId: new mongoose.Types.ObjectId(userId),
+            itemId: new mongoose.Types.ObjectId(itemId),
             amount,
-            bidDate,
+            bidDate: new Date(),
             status,
-            autoBid,
-            createdAt,
+            autoBid: autoBid || false, // Par défaut, false
+            createdAt: new Date(),
         });
 
-
-        await bids.save();
+        await bid.save();
 
         return NextResponse.json(
-            { message: "Enchère créée avec succès.", bids },
+            { message: "Enchère créée avec succès.", bid },
             { status: 201 }
         );
     } catch (error) {

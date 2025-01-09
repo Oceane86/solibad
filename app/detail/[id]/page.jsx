@@ -6,7 +6,7 @@ import io from "socket.io-client";
 import Header from "@/components/Header";
 import { useSession, signIn, signOut } from "next-auth/react";
 import Link from "next/link";
-
+import ReCAPTCHA from "react-google-recaptcha";
 const DetailPage = () => {
     const [showModal, setShowModal] = useState(false);
     const { data: session } = useSession();
@@ -17,7 +17,10 @@ const DetailPage = () => {
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(true);
     const [usersOnline, setUsersOnline] = useState(0);
-    const socketRef = useRef(null); // Stocke l'instance du socket
+    const socketRef = useRef(null);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [isChecked, setIsChecked] = useState(false);
+    const [bidAmount, setBidAmount] = useState(0);
 
     // Récupération des données de l'enchère
     useEffect(() => {
@@ -112,6 +115,45 @@ const DetailPage = () => {
 
 
 
+    // Gestion de la soumission d'une enchère
+    const handleSubmitBid = async () => {
+        if (!isChecked) return alert("Vous devez cocher la case pour enchérir.");
+        if (isSubmitting) return;
+        if (bidAmount <= enchereActuelle) return alert("L'enchère doit être supérieure à la précédente.");
+
+        setIsSubmitting(true);
+        try {
+            const response = await fetch("/api/bids/create", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    userId: session?.user.id,
+                    itemId: id,
+                    amount: bidAmount,
+                    status: "pending",
+                    autoBid: false
+                })
+            });
+
+            if (!response.ok) {
+                const data = await response.json();
+                throw new Error(data.message || "Erreur lors de la soumission de l'enchère.");
+            }
+
+            alert("Votre enchère a été soumise avec succès !");
+            setShowModal(false);
+            setBids([...bids, { amount: bidAmount, userId: session?.user.id }]); // Ajout dynamique
+
+        } catch (error) {
+            console.error("Erreur lors de la soumission de l'enchère:", error);
+            alert(`Une erreur est survenue: ${error.message}`);
+        }
+
+        setIsSubmitting(false);
+    };
+
+
+
 
     if (loading) return <p>Chargement...</p>;
     if (error) return <p style={{ color: "red" }}>❌ {error}</p>;
@@ -178,35 +220,33 @@ const DetailPage = () => {
                                 <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 px-10">
                                     <div className="bg-white p-6 rounded-lg shadow-lg">
                                         <h2 className="text-lg font-bold">Confirmer votre enchère</h2>
-                                        <p className="mt-2">Êtes-vous sûr de vouloir enchérir ?</p>
                                         <input
                                             type="number"
+                                            value={bidAmount}
+                                            onChange={(e) => setBidAmount(Number(e.target.value))}
                                             placeholder="Montant de l'enchère"
                                             min={enchereActuelle + 1}
                                             defaultValue={enchereActuelle + 1}
                                             className="mt-4 w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                                         />
-                                        <p className="mt-2 text-sm text-gray-500">Votre enchère doit être supérieure à {enchereActuelle}€</p>
+
+                                        <p className="mt-4 text-sm text-gray-500">Votre enchère doit être supérieure à {enchereActuelle}€</p>
                                         <div className="mt-5">
                                             <input
                                                 type="checkbox"
                                                 id="verify"
                                                 name="verify"
                                                 className="mr-2"
+                                                onChange={(e) => setIsChecked(e.target.checked)}
                                             />
-                                            <label htmlFor="verify" className="mt-2 text-sm text-gray-500">En validant une enchère, le
-                                                participant s'engage à effectuer le paiement en cas de gain.</label>
+                                            <label htmlFor="verify" className="text-sm text-gray-500">
+                                                En validant une enchère, le participant s'engage à effectuer le paiement en cas de gain.
+                                            </label>
                                         </div>
+
                                         <div className="mt-4 flex justify-end">
-                                        <button
-                                                onClick={() => setShowModal(false)}
-                                                className="mr-2 px-4 py-2 bg-gray-200 rounded-lg"
-                                            >
-                                                Annuler
-                                            </button>
-                                            <button className="px-4 py-2 bg-blue-600 text-white rounded-lg">
-                                                Suivant
-                                            </button>
+                                            <button onClick={() => setShowModal(false)} className="mr-2 px-4 py-2 bg-gray-200 rounded-lg">Annuler</button>
+                                            <button disabled={!isChecked || isSubmitting} onClick={handleSubmitBid} className={`px-4 py-2 rounded-lg ${isChecked ? "bg-blue-600 text-white" : "bg-gray-300 cursor-not-allowed"}`}>Suivant</button>
                                         </div>
                                     </div>
                                 </div>
