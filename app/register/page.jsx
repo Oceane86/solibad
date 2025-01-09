@@ -1,3 +1,4 @@
+
 'use client';
 import { useState } from "react";
 import { useRouter } from 'next/navigation';
@@ -9,7 +10,9 @@ export default function RegisterPage() {
         email: "",
         password: "",
         confirmPassword: "",
-        status: "visiteur"
+        status: "visiteur",
+        description: "",
+        profileImage: null
     });
     const [errors, setErrors] = useState({});
     const [successMessage, setSuccessMessage] = useState("");
@@ -47,9 +50,12 @@ export default function RegisterPage() {
                 },
                 body: JSON.stringify({
                     username: formData.username,
+                    lastname: formData.lastname,
+                    firstname: formData.firstname,
                     email: formData.email,
                     password: formData.password,
-                    status: "visiteur"
+                    status: "visiteur",
+                    description: formData.description
                 })
             });
 
@@ -153,6 +159,12 @@ export default function RegisterPage() {
                     >
                         S'inscrire
                     </button>
+
+                    <div className="text-center text-sm text-gray-600">
+                        <a href="/login" className="hover:text-blue-500">
+                            Vous avez déjà un compte ? Se connecter
+                        </a>
+                    </div>
                 </form>
             </div>
         </div>

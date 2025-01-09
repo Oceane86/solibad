@@ -1,65 +1,31 @@
 // models/User.js
 
-
 import mongoose from 'mongoose';
+import bcrypt from 'bcrypt';
 
-const userSchema = new mongoose.Schema({
-    username: {
-        type: String,
-        required: true,
-    },
-    firstname: {
-        type: String,
-        required: true,
-    },
-    lastname: {
-        type: String,
-        required: true,
-    },
-    email: {
-        type: String,
-        required: true,
-        unique: true,
-    },
-    password: {
-        type: String,
-        required: function () {
-            return !this.isGoogleUser;
-        },
-    },
-  
-    profileImagePath: {
-        type: String,
-        default: "assets/default-profile.png",
-    },
-    role: {
-        type: String,
-        enum: ['visiteur', 'admin'], 
-        default: "visiteur"
-    },
-    adress: {
-        type: String,
-    },
-    city: {
-        type: String,
-    },
-    state: {
-        type: String,
-    },
+const UserSchema = new mongoose.Schema({
+  username: { type: String, required: true, unique: true },
+  firstname: { type: String },
+  lastname: { type: String },
+  email: { type: String, required: true, unique: true },
+  password: { type: String, required: true },
+  role: { type: String, enum: ['user', 'admin'], default: 'user' },
+  address: {
+    street: { type: String },
+    city: { type: String },
+    state: { type: String },
+    country: { type: String },
+    postalCode: { type: String }
+  },
+  createdAt: { type: Date, default: Date.now }
+});
 
-    country: {
-        type: String,
-    },
+// Hachage du mot de passe avant sauvegarde
+UserSchema.pre('save', async function (next) {
+  if (this.isModified('password')) {
+    this.password = await bcrypt.hash(this.password, 10);
+  }
+  next();
+});
 
-    postalCode: {
-        type: Number,
-    },
-
-    
-    isGoogleUser: {
-        type: Boolean,
-        default: false
-    },
-}, { timestamps: true });
-
-export default mongoose.models.User || mongoose.model('User', userSchema);
+export default mongoose.models.User || mongoose.model('User', UserSchema);

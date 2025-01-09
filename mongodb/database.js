@@ -1,7 +1,7 @@
 // mongodv/database.js
 import mongoose from "mongoose";
 
-let isConnected = false; // Database connection status
+let isConnected = false; // Permet d'éviter plusieurs connexions
 
 export const connectToDB = async () => {
     mongoose.set('strictQuery', true)
