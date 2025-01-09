@@ -72,27 +72,39 @@ const DetailPage = () => {
         fetchBids();
     }, [params.id]);
 
-    // Gestion du WebSocket avec Socket.io
     useEffect(() => {
         if (!id) return;
 
         console.log(`🛠 Initialisation du socket pour l'enchère ${id}`);
 
+        const socketUrl = process.env.NODE_ENV === "development"
+            ? "http://localhost:4000" // Mode développement (localhost)
+            : "wss://pauldecalf.fr"; // Mode production
+
+        // Vérifier si le socket n'est pas déjà initialisé
         if (!socketRef.current) {
-            socketRef.current = io("https://pauldecalf.fr/", {
+            socketRef.current = io(socketUrl, {
                 path: "/socket.io/",
                 transports: ["websocket", "polling"]
             });
 
-            socketRef.current.emit("join_auction", id);
-            console.log(`✅ Socket.io émis: join_auction ${id}`);
+            socketRef.current.on("connect", () => {
+                console.log("🟢 Connexion WebSocket établie");
+                socketRef.current.emit("join_auction", id);
+                console.log(`✅ Socket.io émis: join_auction ${id}`);
+            });
 
             socketRef.current.on("users_online", (count) => {
                 console.log(`👥 Nombre d'enchérisseurs en ligne pour ${id}:`, count);
                 setUsersOnline(count);
             });
+
+            socketRef.current.on("connect_error", (err) => {
+                console.error("❌ Erreur de connexion WebSocket :", err);
+            });
         }
 
+        // Nettoyage à la destruction du composant ou changement d'ID
         return () => {
             console.log(`❌ Déconnexion du socket pour l'enchère ${id}`);
             if (socketRef.current) {
@@ -101,7 +113,10 @@ const DetailPage = () => {
                 socketRef.current = null;
             }
         };
-    }, [id]);
+    }, [id]); // Dépendance unique : l'ID de l'enchère
+
+
+
 
     // Récupération des données de l'enchère automatique concernant l'utilisateur
     useEffect(() => {
