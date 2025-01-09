@@ -15,7 +15,7 @@ const DetailPage = () => {
     const [usersOnline, setUsersOnline] = useState(0);
     const socketRef = useRef(null); // Stocke l'instance du socket
 
-// Récupération des données de l'enchère
+    // Récupération des données de l'enchère
     useEffect(() => {
         const fetchItem = async () => {
             if (!params.id) return; // Vérification de la présence d'un ID
@@ -36,6 +36,7 @@ const DetailPage = () => {
         fetchItem();
     }, [params.id]);
 
+    // Récupération des bids de l'enchère
     useEffect(() => {
         const fetchBids = async () => {
             if (!params.id) return; // Vérification de la présence d'un ID
@@ -95,11 +96,13 @@ const DetailPage = () => {
     if (bids) {
         nbBids = bids.length;
     }
-    // Désormais enchereActuelle est la dernière enchère ayant le amount le plus élevé
-    let enchereActuelle = item?.initialPrice;
-    if (bids) {
-        enchereActuelle = bids.reduce((max, bid) => bid.amount > max ? bid.amount : max, 0);
 
+    // Désormais enchereActuelle est la dernière enchère ayant le amount le plus élevé
+    let enchereActuelle = 0;
+    if (bids && bids.length > 0) {
+        enchereActuelle = bids.reduce((max, bid) => bid.amount > max ? bid.amount : max, 0);
+    } else if (item) { // Vérifier que item est défini avant d'accéder à ses propriétés
+        enchereActuelle = item.initialPrice;
     }
 
 
