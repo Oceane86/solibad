@@ -9,6 +9,8 @@ import Link from "next/link";
 import ReCAPTCHA from "react-google-recaptcha";
 const DetailPage = () => {
     const [showModal, setShowModal] = useState(false);
+    const [showCtaEncherir, setshowCtaEncherir] = useState(false);
+
     const { data: session } = useSession();
     const params = useParams();
     const [id, setId] = useState(null);
@@ -21,7 +23,7 @@ const DetailPage = () => {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isChecked, setIsChecked] = useState(false);
     const [bidAmount, setBidAmount] = useState(0);
-    const [isAutoBids, setIsAutoBids] = useState(false);
+    const [isAutoBids, setAutoBids] = useState(false);
     const [maxBid, setMaxBid] = useState(0);
     const [increment, setIncrement] = useState(0);
 
@@ -103,28 +105,41 @@ const DetailPage = () => {
 
     // Récupération des données de l'enchère automatique concernant l'utilisateur
     useEffect(() => {
-        const fetchItem = async () => {
-            // On fait un fetch avec l'id de l'utilisateur ensuite on verifie si l'utilisateur a une enchère automatique avec itemId = id
+        const fetchAutoBids = async () => {
+            if (!session?.user.id) return;
 
             try {
-                const response = await fetch(`/api/bids/select?id=${session?.user.id}`);
-                if (!response.ok) throw new Error("Erreur lors de la récupération des données");
+                const response = await fetch(`/api/autobids/select?id=${session?.user.id}`);
+                if (!response.ok) throw new Error("Erreur lors de la récupération des enchères automatiques.");
                 const data = await response.json();
-                console.log(data);
-                setBids(data);
+
+                if (data && data.length > 0) {
+                    const autoBid = data.find((bid) => bid.itemId === id);
+                    if (autoBid) {
+                        setAutoBids(true);
+                        setMaxBid(autoBid.maxBudget);
+                        setIncrement(autoBid.increment);
+                    }
+                }
             } catch (err) {
                 setError(err.message);
             }
-
-            // On définit les valeurs de maxBid et increment et setIsAutoBids à true si l'utilisateur a une enchère automatique
-            if (bids && bids.length > 0) {
-                setIsAutoBids(true);
-                setMaxBid(bids[0].maxBid);
-                setIncrement(bids[0].increment);
-            }
         };
-    }, [session?.user.id]);
 
+        fetchAutoBids();
+    }, [session?.user.id, id]); // Ajout de `id` pour s'assurer que les enchères automatiques concernent le bon produit
+
+    //On fait un use effect permettant de vérifier si l'utilisateur est connecté & si l'enchére est disponible pour afficher le bouton d'enchérir
+    useEffect(() => {
+        if (item && session) {
+            const debut = new Date(item.startDate);
+            const fin = new Date(item.endDate);
+            if (debut < Date.now() && fin > Date.now()) {
+                setshowCtaEncherir(true);
+            }
+        }
+
+    }, [item, session]);
     // Désormais on compte le nombre de bids pour afficher le nombre d'enchères
     let nbBids = 0;
     if (bids) {
@@ -192,6 +207,7 @@ const DetailPage = () => {
             return "❌ Les dates fournies ne sont pas valides.";
         }
 
+        let statusButton = false;
         if (debut > Date.now()) {
             return "⚫ Cette enchère n'est pas encore disponible.";
         } else if (fin < Date.now()) {
@@ -201,10 +217,70 @@ const DetailPage = () => {
         }
     };
 
+    const handleSaveAutoBid = async () => {
+        if (!session?.user.id) {
+            alert("Vous devez être connecté pour activer l'enchère automatique.");
+            return;
+        }
+
+        try {
+            const response = await fetch(`/api/autobids/update?idUser=${session.user.id}&idItem=${id}&budgetMax=${maxBid}&increment=${increment}`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+            });
+
+            if (!response.ok) {
+                const data = await response.json();
+                throw new Error(data.error || "Erreur lors de la mise à jour des enchères automatiques.");
+            }
+
+            alert("Votre enchère automatique a été mise à jour !");
+        } catch (error) {
+            console.error("Erreur lors de la mise à jour de l'enchère automatique :", error);
+            alert(`Une erreur est survenue: ${error.message}`);
+        }
+    };
+    const handleToggleAutoBid = async (e) => {
+        const isChecked = e.target.checked;
+        setAutoBids(isChecked);
+
+        if (!session?.user.id || !id) {
+            alert("Vous devez être connecté pour activer/désactiver l'enchère automatique.");
+            return;
+        }
+
+        if (isChecked) {
+            // L'utilisateur active l'enchère automatique
+            handleSaveAutoBid();
+        } else {
+            // L'utilisateur désactive l'enchère automatique
+            try {
+                const response = await fetch(`/api/autobids/delete?idUser=${session.user.id}&idItem=${id}`, {
+                    method: "DELETE",
+                    headers: { "Content-Type": "application/json" },
+                });
+
+                if (!response.ok) {
+                    const data = await response.json();
+                    throw new Error(data.error || "Erreur lors de la suppression de l'enchère automatique.");
+                }
+
+                alert("Votre enchère automatique a été supprimée !");
+                setMaxBid(0);
+                setIncrement(0);
+            } catch (error) {
+                console.error("Erreur lors de la suppression de l'enchère automatique :", error);
+                alert(`Une erreur est survenue: ${error.message}`);
+            }
+        }
+    };
+
+
     const messageDate = getMessageDate();
 
     return (
         <Suspense>
+
             <Header/>
             <div className="m-4">
                 <a href="/" className="underline mb-3">Revenir à la liste</a>
@@ -222,7 +298,7 @@ const DetailPage = () => {
                                         <p>Dernière enchère:</p>
                                         <div className=" xl:flex xl:flex-row gap-10">
                                             <p className="font-bold px-5 py-3 sm:px-10 sm:py-5 bg-red-500 text-white rounded-lg text-center">{enchereActuelle}€</p>
-                                            {session && (
+                                            {session &&  (
                                                 <button onClick={() => setShowModal(true)}
                                                         className="font-bold px-5 py-3 sm:px-10 sm:py-5 bg-gray-50 border-2 rounded-lg text-center mt-6 xl:mt-0">Enchèrir</button>
                                             )}
@@ -263,8 +339,9 @@ const DetailPage = () => {
                                                 id="autoBids"
                                                 name="autoBids"
                                                 defaultChecked={isAutoBids}
+
                                                 className="mr-2"
-                                                onChange={(e) => setIsAutoBids(e.target.checked)}
+                                                onChange={(e) => setAutoBids(e.target.checked)}
                                             />
                                             <label htmlFor="autoBids" className="text-sm text-gray-500">Activez l'enchère automatique</label>
                                         </div>
@@ -290,6 +367,7 @@ const DetailPage = () => {
                                                         className="mr-2"
                                                     />
                                                 </div>
+                                                <button onClick={handleSaveAutoBid} className="mx-5 mt-4 px-2 py-1 bg-blue-400 text-white rounded-lg">Sauvegarder</button>
                                             </>
                                         )}
                                         <div className="mt-5">
@@ -306,7 +384,7 @@ const DetailPage = () => {
                                         </div>
 
                                         <div className="mt-4 flex justify-end">
-                                            <button onClick={() => setShowModal(false)} className="mr-2 px-4 py-2 bg-gray-200 rounded-lg">Annuler</button>
+                                            <button onClick={() => setShowModal(false)} className="mr-2 px-4 py-2 bg-gray-200 rounded-lg">Fermer</button>
                                             <button disabled={!isChecked || isSubmitting} onClick={handleSubmitBid} className={`px-4 py-2 rounded-lg ${isChecked ? "bg-blue-600 text-white" : "bg-gray-300 cursor-not-allowed"}`}>Suivant</button>
                                         </div>
                                     </div>
