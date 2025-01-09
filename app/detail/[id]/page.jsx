@@ -1,3 +1,5 @@
+// app/detail/[id]/page.jsx
+
 'use client';
 
 import {Suspense, useEffect, useRef, useState} from "react";
@@ -7,6 +9,7 @@ import Header from "@/components/Header";
 import { useSession, signIn, signOut } from "next-auth/react";
 import Link from "next/link";
 import ReCAPTCHA from "react-google-recaptcha";
+
 const DetailPage = () => {
     const [showModal, setShowModal] = useState(false);
     const [showCtaEncherir, setshowCtaEncherir] = useState(false);
@@ -51,7 +54,7 @@ const DetailPage = () => {
     // Récupération des bids de l'enchère
     useEffect(() => {
         const fetchBids = async () => {
-            if (!params.id) return; // Vérification de la présence d'un ID
+            if (!params.id) return;
 
             setId(params.id);
             try {
@@ -71,18 +74,15 @@ const DetailPage = () => {
 
     // Gestion du WebSocket avec Socket.io
     useEffect(() => {
-        if (!id) return; // Attendre que l'ID soit défini
+        if (!id) return;
 
         console.log(`🛠 Initialisation du socket pour l'enchère ${id}`);
 
-        // Vérifie si le socket n'est pas déjà initialisé
         if (!socketRef.current) {
             socketRef.current = io("wss://pauldecalf.fr", {
                 path: "/socket.io/",
                 transports: ["websocket", "polling"]
             });
-
-
 
             socketRef.current.emit("join_auction", id);
             console.log(`✅ Socket.io émis: join_auction ${id}`);
@@ -98,7 +98,7 @@ const DetailPage = () => {
             if (socketRef.current) {
                 socketRef.current.off("users_online");
                 socketRef.current.disconnect();
-                socketRef.current = null; // Reset du socket
+                socketRef.current = null;
             }
         };
     }, [id]);
@@ -127,9 +127,9 @@ const DetailPage = () => {
         };
 
         fetchAutoBids();
-    }, [session?.user.id, id]); // Ajout de `id` pour s'assurer que les enchères automatiques concernent le bon produit
+    }, [session?.user.id, id]);
 
-    //On fait un use effect permettant de vérifier si l'utilisateur est connecté & si l'enchére est disponible pour afficher le bouton d'enchérir
+    // Vérification si l'utilisateur est connecté & si l'enchère est disponible
     useEffect(() => {
         if (item && session) {
             const debut = new Date(item.startDate);
@@ -138,23 +138,20 @@ const DetailPage = () => {
                 setshowCtaEncherir(true);
             }
         }
-
     }, [item, session]);
-    // Désormais on compte le nombre de bids pour afficher le nombre d'enchères
+
     let nbBids = 0;
     if (bids) {
         nbBids = bids.length;
     }
 
-    // Désormais enchereActuelle est la dernière enchère ayant le amount le plus élevé
     let enchereActuelle = 0;
     if (bids && bids.length > 0) {
         enchereActuelle = bids.reduce((max, bid) => bid.amount > max ? bid.amount : max, 0);
-    } else if (item) { // Vérifier que item est défini avant d'accéder à ses propriétés
+    } else if (item) {
         enchereActuelle = item.initialPrice;
     }
 
-    // Gestion de la soumission d'une enchère
     const handleSubmitBid = async () => {
         if (!isChecked) return alert("Vous devez cocher la case pour enchérir.");
         if (isSubmitting) return;
@@ -181,7 +178,7 @@ const DetailPage = () => {
 
             alert("Votre enchère a été soumise avec succès !");
             setShowModal(false);
-            setBids([...bids, { amount: bidAmount, userId: session?.user.id }]); // Ajout dynamique
+            setBids([...bids, { amount: bidAmount, userId: session?.user.id }]);
 
         } catch (error) {
             console.error("Erreur lors de la soumission de l'enchère:", error);
@@ -240,6 +237,7 @@ const DetailPage = () => {
             alert(`Une erreur est survenue: ${error.message}`);
         }
     };
+
     const handleToggleAutoBid = async (e) => {
         const isChecked = e.target.checked;
         setAutoBids(isChecked);
@@ -250,10 +248,8 @@ const DetailPage = () => {
         }
 
         if (isChecked) {
-            // L'utilisateur active l'enchère automatique
             handleSaveAutoBid();
         } else {
-            // L'utilisateur désactive l'enchère automatique
             try {
                 const response = await fetch(`/api/autobids/delete?idUser=${session.user.id}&idItem=${id}`, {
                     method: "DELETE",
@@ -275,12 +271,10 @@ const DetailPage = () => {
         }
     };
 
-
     const messageDate = getMessageDate();
 
     return (
         <Suspense>
-
             <Header/>
             <div className="m-4">
                 <a href="/" className="underline mb-3">Revenir à la liste</a>
@@ -288,27 +282,22 @@ const DetailPage = () => {
                     <>
                         <div className="mt-6 sm:flex sm:flex-col sm:items-center">
                             <div className="flex flex-col items-center sm:flex-row sm:gap-20 lg:gap-60 xl:gap-x-9 ">
-
                                 <img src={item.imageURL} alt={item.name} className="w-full rounded-xl max-w-96 xl:max-w-[500px]"/>
-
-
                                 <div className="sm:flex-col items-start xl:p-20">
                                     <h1 className="text-2xl mt-6 sm:mt-0 font-bold max-w-[300px]">{item.name}</h1>
                                     <div className="mt-6">
-                                        <p>Dernière enchère:</p>
+                                        <p>Dernière enchère :</p>
                                         <div className=" xl:flex xl:flex-row gap-10">
                                             <p className="font-bold px-5 py-3 sm:px-10 sm:py-5 bg-red-500 text-white rounded-lg text-center">{enchereActuelle}€</p>
-                                            {session &&  (
+                                            {session && (
                                                 <button onClick={() => setShowModal(true)}
                                                         className="font-bold px-5 py-3 sm:px-10 sm:py-5 bg-gray-50 border-2 rounded-lg text-center mt-6 xl:mt-0">Enchèrir</button>
                                             )}
                                             {!session && (
                                                 <Link href="/login"
-                                                      className="font-bold px-5 py-3 sm:px-10 sm:py-5 bg-gray-50 border-2 rounded-lg text-center mt-6 xl:mt-0">Connectez-vous
-                                                    pour enchérir</Link>
+                                                      className="font-bold px-5 py-3 sm:px-10 sm:py-5 bg-gray-50 border-2 rounded-lg text-center mt-6 xl:mt-0">Connectez-vous pour enchérir</Link>
                                             )}
                                         </div>
-
                                     </div>
                                     <p className="mt-4">Prix de réserve : {item.initialPrice}€</p>
                                     <p className="mt-4">{messageDate}</p>
@@ -339,7 +328,6 @@ const DetailPage = () => {
                                                 id="autoBids"
                                                 name="autoBids"
                                                 defaultChecked={isAutoBids}
-
                                                 className="mr-2"
                                                 onChange={(e) => setAutoBids(e.target.checked)}
                                             />
@@ -393,42 +381,24 @@ const DetailPage = () => {
 
                             <div className="flex flex-col xl:flex-row xl:gap-10">
                                 <div className="flex flex-col">
-                                    <div
-                                        className="mt-8 p-6 bg-red-100 rounded-lg shadow-md sm:max-w-[677px] lg:max-w-[837px] xl:max-w-[500px] ">
+                                    <div className="mt-8 p-6 bg-red-100 rounded-lg shadow-md sm:max-w-[677px] lg:max-w-[837px] xl:max-w-[500px] ">
                                         <h2 className="text-2xl font-bold text-gray-800">RÈGLEMENT :</h2>
 
                                         <div className="mt-4 space-y-4 text-gray-700">
                                             <p>
-                                                <strong>🔄 Prolongation des enchères :</strong> À chaque nouvelle enchère
-                                                dans
-                                                les 5 dernières minutes, un compte à rebours de 5 minutes est
-                                                réinitialisé.
-                                                L’enchère est définitivement close une fois ce délai écoulé sans
-                                                nouvelle
-                                                mise.
+                                                <strong>🔄 Prolongation des enchères :</strong> À chaque nouvelle enchère dans les 5 dernières minutes, un compte à rebours de 5 minutes est réinitialisé. L'enchère est définitivement close une fois ce délai écoulé sans nouvelle mise.
                                             </p>
 
                                             <p>
-                                                <strong>💰 Enchères minimales après un temps prolongé :</strong> Si
-                                                l'enchère
-                                                dépasse 30 minutes après l’heure de fin annoncée, l’incrémentation
-                                                minimale
-                                                passe à <span className="font-semibold">50 USD</span>.
+                                                <strong>💰 Enchères minimales après un temps prolongé :</strong> Si l'enchère dépasse 30 minutes après l'heure de fin annoncée, l'incrémentation minimale passe à <span className="font-semibold">50 USD</span>.
                                             </p>
 
                                             <p>
-                                                <strong>🎯 Enchère automatique :</strong> Les participants peuvent
-                                                définir un
-                                                montant maximum dès le début. Le système surenchérit automatiquement
-                                                avec un
-                                                incrément de leur choix (ex: +10€) jusqu’au plafond défini.
+                                                <strong>🎯 Enchère automatique :</strong> Les participants peuvent définir un montant maximum dès le début. Le système surenchérit automatiquement avec un incrément de leur choix (ex: +10€) jusqu'au plafond défini.
                                             </p>
 
                                             <p>
-                                                <strong>📝 Inscription :</strong> Un formulaire simple permet de
-                                                s’inscrire
-                                                en
-                                                vérifiant l’authenticité des participants :
+                                                <strong>📝 Inscription :</strong> Un formulaire simple permet de s'inscrire en vérifiant l'authenticité des participants :
                                             </p>
                                             <ul className="ml-6 list-disc">
                                                 <li>Nom, Prénom</li>
@@ -437,22 +407,16 @@ const DetailPage = () => {
                                             </ul>
 
                                             <p>
-                                                <strong>📅 Agenda des enchères :</strong> Un calendrier des prochaines
-                                                enchères
-                                                est disponible. Les participants peuvent activer une notification email
-                                                pour
-                                                être informés des futures ventes.
+                                                <strong>📅 Agenda des enchères :</strong> Un calendrier des prochaines enchères est disponible. Les participants peuvent activer une notification email pour être informés des futures ventes.
                                             </p>
 
                                             <p>
-                                                <strong>⚠️ Engagement :</strong> En validant une enchère, le participant
-                                                s'engage à effectuer le paiement en cas de gain.
+                                                <strong>⚠️ Engagement :</strong> En validant une enchère, le participant s'engage à effectuer le paiement en cas de gain.
                                             </p>
                                         </div>
                                     </div>
 
-                                    <div
-                                        className="mt-8 p-6 bg-red-100 rounded-lg shadow-md sm:max-w-[677px] lg:max-w-[837px] xl:max-w-[500px] ">
+                                    <div className="mt-8 p-6 bg-red-100 rounded-lg shadow-md sm:max-w-[677px] lg:max-w-[837px] xl:max-w-[500px] ">
                                         <h2 className="text-2xl font-bold text-gray-800">Acheter</h2>
                                         <p>En toute sécurité</p>
 
@@ -463,9 +427,8 @@ const DetailPage = () => {
                                     </div>
                                 </div>
                                 <div className="flex flex-col">
-                                    <div
-                                        className="mt-8 p-6 bg-gray-100 rounded-lg shadow-md sm:max-w-[677px] lg:max-w-[837px] xl:max-w-[500px] h-fit ">
-                                    <h2 className="text-2xl font-bold text-gray-800">DESCRIPTIF :</h2>
+                                    <div className="mt-8 p-6 bg-gray-100 rounded-lg shadow-md sm:max-w-[677px] lg:max-w-[837px] xl:max-w-[500px] h-fit ">
+                                        <h2 className="text-2xl font-bold text-gray-800">DESCRIPTIF :</h2>
 
                                         <div className="mt-4 space-y-4 text-gray-700">
                                             <p className="text-lg font-semibold">{item.name}</p>
@@ -473,31 +436,20 @@ const DetailPage = () => {
                                         </div>
                                     </div>
 
-                                    <div
-                                        className="mt-8 p-6 bg-gray-100 rounded-lg shadow-md sm:max-w-[677px] lg:max-w-[837px] xl:max-w-[500px] h-fit ">
+                                    <div className="mt-8 p-6 bg-gray-100 rounded-lg shadow-md sm:max-w-[677px] lg:max-w-[837px] xl:max-w-[500px] h-fit ">
                                         <h2 className="text-2xl font-bold text-gray-800">Comment ça marche ?</h2>
                                         <p>100% en ligne</p>
                                         <div className="mt-4 space-y-4 text-gray-700">
-                                            <p className="text-lg font-semibold">✅ Enchérissez et remportez une
-                                                offre</p>
-                                            <p className="text-lg font-semibold">✅ Validation de l’enchère par le
-                                                vendeur</p>
+                                            <p className="text-lg font-semibold">✅ Enchérissez et remportez une offre</p>
+                                            <p className="text-lg font-semibold">✅ Validation de l'enchère par le vendeur</p>
                                             <p className="text-lg font-semibold">✅ Payez par virement sous 48h</p>
-                                            <p className="text-lg font-semibold">✅ Enlevez ou faites-vous livrer
-                                                votre lot</p>
-                                            <p className="text-lg font-semibold">✅ Vérifiez votre commande à la
-                                                réception</p>
-
+                                            <p className="text-lg font-semibold">✅ Enlevez ou faites-vous livrer votre lot</p>
+                                            <p className="text-lg font-semibold">✅ Vérifiez votre commande à la réception</p>
                                         </div>
                                     </div>
                                 </div>
-
                             </div>
-
-
                         </div>
-
-
                     </>
                 )}
             </div>

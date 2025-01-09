@@ -35,7 +35,7 @@ export async function POST(req) {
             lastname,
             firstname,
             email,
-            password: hashedPassword,
+            password: hashedPassword, 
             status
         });
 
