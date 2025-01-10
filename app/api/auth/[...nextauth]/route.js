@@ -1,6 +1,5 @@
 // app/api/auth/[...nextauth].js
 
-
 import { connectToDB } from "@/mongodb/database";
 import NextAuth from "next-auth/next";
 import GoogleProvider from "next-auth/providers/google";
@@ -24,10 +23,8 @@ const handler = NextAuth({
     CredentialsProvider({
       name: "Credentials",
       async authorize(credentials) {
-        // Connexion à la base de données
         await connectToDB();
 
-        // Recherche de l'utilisateur dans la base de données
         const user = await User.findOne({ email: credentials.email });
         if (!user) {
           throw new Error("Email ou mot de passe incorrect.");
@@ -44,8 +41,6 @@ const handler = NextAuth({
     }),
   ],
 
-  secret: process.env.NEXTAUTH_SECRET,
-
   callbacks: {
     async session({ session }) {
       try {
@@ -58,7 +53,6 @@ const handler = NextAuth({
           session.user.profileImagePath = sessionUser.profileImagePath || null;
           session.user.role = sessionUser.role || "visiteur";
         } else {
-          // L'utilisateur n'est pas trouvé dans la base de données
           session.user.id = null;
           session.user.profileImagePath = null;
           session.user.role = "invité";
@@ -100,7 +94,6 @@ const handler = NextAuth({
     },
 
     async redirect({ url, baseUrl }) {
-      // Redirection par défaut vers `baseUrl`
       return baseUrl;
     },
   },
