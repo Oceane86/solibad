@@ -64,8 +64,9 @@ const AdminPage = () => {
   }
 
   return (
+
+    <><Header />
     <div className="container mx-auto p-8">
-      <Header />
       <h1 className="text-2xl font-bold mb-6">Mes Enchères</h1>
 
       {/* Bouton de création d'enchère en haut */}
@@ -85,10 +86,10 @@ const AdminPage = () => {
           items.map((item) => (
             <div key={item._id} className="border p-4 rounded-lg shadow-lg bg-white">
               <h3 className="text-xl font-semibold text-gray-800">{item.name}</h3>
-              
+
               {/* Limitation de la description à 3 lignes avec troncage */}
               <p className="text-gray-600 mt-2 line-clamp-3">{item.description}</p>
-              
+
               <p className="mt-4 text-gray-800">
                 <strong>Prix de départ:</strong> {item.initialPrice}€
               </p>
@@ -112,7 +113,7 @@ const AdminPage = () => {
           !loading && <p>Aucune enchère disponible.</p>
         )}
       </div>
-    </div>
+    </div></>
   );
 };
 

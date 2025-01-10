@@ -110,24 +110,19 @@ export default function ProfilePage() {
   };
 
   return (
-    <div className="container mx-auto p-4">
-      <Header />
+    <><Header /><div className="container mx-auto p-8">
       <h1 className="text-2xl font-bold mb-6">Mon Profil</h1>
 
       <div className="tabs">
         <ul className="flex space-x-4 border-b">
           <li
-            className={`tab cursor-pointer ${
-              activeTab === "information" ? "border-b-2 border-black" : ""
-            }`}
+            className={`tab cursor-pointer ${activeTab === "information" ? "border-b-2 border-black" : ""}`}
             onClick={() => setActiveTab("information")}
           >
             Modifier mes informations
           </li>
           <li
-            className={`tab cursor-pointer ${
-              activeTab === "profil" ? "border-b-2 border-black" : ""
-            }`}
+            className={`tab cursor-pointer ${activeTab === "profil" ? "border-b-2 border-black" : ""}`}
             onClick={() => setActiveTab("profil")}
           >
             Profil
@@ -139,8 +134,7 @@ export default function ProfilePage() {
             <EditProfileForm
               formData={formData}
               handleInputChange={handleInputChange}
-              handleSubmit={handleSubmit}
-            />
+              handleSubmit={handleSubmit} />
           )}
           {activeTab === "profil" && (
             <div>
@@ -159,11 +153,11 @@ export default function ProfilePage() {
       </div>
 
       <button
-        onClick={handleSignOut} 
+        onClick={handleSignOut}
         className="mt-4 px-6 py-2 bg-red-500 text-white rounded hover:bg-red-600"
       >
         Se déconnecter
       </button>
-    </div>
+    </div></>
   );
 }

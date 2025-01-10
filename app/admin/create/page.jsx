@@ -70,8 +70,8 @@ const CreateAuction = () => {
   };
 
   return (
-    <div className="container mx-auto p-6 max-w-2xl">
-      <Header/>
+  <><Header />
+  <div className="container mx-auto p-6 max-w-2xl">
       <h1 className="text-2xl font-bold mb-6">Créer une Enchère</h1>
 
       {error && <p className="text-red-500 text-center mb-4">{error}</p>}
@@ -86,8 +86,7 @@ const CreateAuction = () => {
             value={name}
             onChange={(e) => setName(e.target.value)}
             required
-            className="w-full p-3 mt-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
+            className="w-full p-3 mt-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
         </div>
 
         <div>
@@ -97,8 +96,7 @@ const CreateAuction = () => {
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             required
-            className="w-full p-3 mt-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
+            className="w-full p-3 mt-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
         </div>
 
         <div>
@@ -109,8 +107,7 @@ const CreateAuction = () => {
             value={startDate}
             onChange={(e) => setStartDate(e.target.value)}
             required
-            className="w-full p-3 mt-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
+            className="w-full p-3 mt-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
         </div>
 
         <div>
@@ -121,8 +118,7 @@ const CreateAuction = () => {
             value={endDate}
             onChange={(e) => setEndDate(e.target.value)}
             required
-            className="w-full p-3 mt-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
+            className="w-full p-3 mt-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
         </div>
 
         <div>
@@ -133,8 +129,7 @@ const CreateAuction = () => {
             value={initialPrice}
             onChange={(e) => setInitialPrice(e.target.value)}
             required
-            className="w-full p-3 mt-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
+            className="w-full p-3 mt-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
         </div>
 
         <div>
@@ -144,8 +139,7 @@ const CreateAuction = () => {
             type="file"
             accept="image/*"
             onChange={(e) => setImage(e.target.files[0])}
-            className="w-full p-3 mt-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
+            className="w-full p-3 mt-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
         </div>
 
         <div className="text-center">
@@ -168,7 +162,7 @@ const CreateAuction = () => {
           </Link>
         </div>
       )}
-    </div>
+    </div></>
   );
 };
 
