@@ -286,6 +286,7 @@ const DetailPage = () => {
         }
     };
 
+
     const messageDate = getMessageDate();
 
     return (
