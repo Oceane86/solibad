@@ -1,10 +1,10 @@
 // app/admin/edit/[id]/page.jsx
-
 "use client";
 
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import Header from "@/components/Header";
 
 const EditAuction = ({ params }) => {
   const { data: session, status } = useSession();
@@ -20,7 +20,6 @@ const EditAuction = ({ params }) => {
   const router = useRouter();
   const { id } = params;
 
-  // Chargement de l'enchère
   useEffect(() => {
     const fetchItem = async () => {
       try {
@@ -46,7 +45,6 @@ const EditAuction = ({ params }) => {
     if (status === "authenticated") fetchItem();
   }, [id, status]);
 
-  // Fonction pour supprimer l'enchère
   const handleDelete = async () => {
     if (!window.confirm("Êtes-vous sûr de vouloir supprimer cette enchère ?")) {
       return;
@@ -58,13 +56,13 @@ const EditAuction = ({ params }) => {
         method: "DELETE",
       });
 
-      const data = await response.json();
       if (response.ok) {
         setSuccessMessage("L'enchère a été supprimée avec succès !");
         setTimeout(() => {
           router.push("/admin");
         }, 2000);
       } else {
+        const data = await response.json();
         setError(data.error || "Une erreur est survenue.");
       }
     } catch (err) {
@@ -74,7 +72,6 @@ const EditAuction = ({ params }) => {
     }
   };
 
-  // Gestion du formulaire
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -114,81 +111,94 @@ const EditAuction = ({ params }) => {
     }
   };
 
-  // Redirection si l'utilisateur n'est pas authentifié
   if (status === "unauthenticated") {
-    return <p>Vous devez être connecté pour accéder à cette page.</p>;
+    return <p className="text-center text-red-500">Vous devez être connecté pour accéder à cette page.</p>;
   }
 
-  // Affichage du chargement
   if (loading && !item) {
-    return <p>Chargement...</p>;
+    return <p className="text-center text-gray-500">Chargement...</p>;
   }
 
-  // Affichage du formulaire
   return (
-    <div className="container mx-auto p-8">
-      <h1>Modifier l'Enchère</h1>
-      {error && <p style={{ color: "red" }}>{error}</p>}
-      {successMessage && <p style={{ color: "green" }}>{successMessage}</p>}
-      {item && (
-        <form onSubmit={handleSubmit}>
-          <div>
-            <label>Nom</label>
-            <input
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              required
-            />
-          </div>
-          <div>
-            <label>Description</label>
-            <textarea
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              required
-            />
-          </div>
-          <div>
-            <label>Date de début</label>
-            <input
-              type="datetime-local"
-              value={startDate}
-              onChange={(e) => setStartDate(e.target.value)}
-              required
-            />
-          </div>
-          <div>
-            <label>Date de fin</label>
-            <input
-              type="datetime-local"
-              value={endDate}
-              onChange={(e) => setEndDate(e.target.value)}
-              required
-            />
-          </div>
-          <div>
-            <label>Prix initial</label>
-            <input
-              type="number"
-              value={initialPrice}
-              onChange={(e) => setInitialPrice(e.target.value)}
-              required
-            />
-          </div>
-          <button type="submit" disabled={loading}>
-            {loading ? "En cours..." : "Mettre à jour"}
+    <>
+      <Header />
+      <div className="container mx-auto max-w-4xl p-6">
+        <h1 className="text-2xl font-bold text-left mb-6">Modifier l'Enchère</h1>
+        {error && <p className="text-red-500 text-center mb-4">{error}</p>}
+        {successMessage && <p className="text-green-500 text-center mb-4">{successMessage}</p>}
+        {item && (
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="flex flex-col">
+              <label className="font-medium">Nom</label>
+              <input
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                required
+                className="border rounded px-4 py-2"
+              />
+            </div>
+            <div className="flex flex-col">
+              <label className="font-medium">Description</label>
+              <textarea
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                required
+                className="border rounded px-4 py-2"
+              />
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="flex flex-col">
+                <label className="font-medium">Date de début</label>
+                <input
+                  type="datetime-local"
+                  value={startDate}
+                  onChange={(e) => setStartDate(e.target.value)}
+                  required
+                  className="border rounded px-4 py-2"
+                />
+              </div>
+              <div className="flex flex-col">
+                <label className="font-medium">Date de fin</label>
+                <input
+                  type="datetime-local"
+                  value={endDate}
+                  onChange={(e) => setEndDate(e.target.value)}
+                  required
+                  className="border rounded px-4 py-2"
+                />
+              </div>
+            </div>
+            <div className="flex flex-col">
+              <label className="font-medium">Prix initial</label>
+              <input
+                type="number"
+                value={initialPrice}
+                onChange={(e) => setInitialPrice(e.target.value)}
+                required
+                className="border rounded px-4 py-2"
+              />
+            </div>
+            <button
+              type="submit"
+              disabled={loading}
+              className="bg-blue-500 text-white px-6 py-2 rounded hover:bg-blue-600 disabled:opacity-50"
+            >
+              {loading ? "En cours..." : "Mettre à jour"}
+            </button>
+          </form>
+        )}
+        <div className="mt-6">
+          <button
+            onClick={handleDelete}
+            disabled={loading}
+            className="bg-red-500 text-white px-6 py-2 rounded hover:bg-red-600 disabled:opacity-50"
+          >
+            {loading ? "Suppression en cours..." : "Supprimer l'enchère"}
           </button>
-        </form>
-      )}
-      
-      {/* Bouton de suppression */}
-      <div>
-        <button onClick={handleDelete} disabled={loading}>
-          {loading ? "Suppression en cours..." : "Supprimer l'enchère"}
-        </button>
+        </div>
       </div>
-    </div>
+    </>
   );
 };
 
