@@ -1,6 +1,8 @@
-// app/translation/page.tsx
+"use client";
+
+import { createContext } from 'react';
 import { useTranslation } from 'react-i18next';
-import '../../config/i18n';
+import i18n from '../i18n';
 
 export default function TranslationTestPage() {
     const { t } = useTranslation();

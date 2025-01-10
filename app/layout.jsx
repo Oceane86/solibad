@@ -1,5 +1,8 @@
 // app/layout.jsx
+"use client";
 import Provider from "../components/Provider";
+
+import "./i18n";
 
 import "./globals.css";
 
