@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Card from "../components/card/card";
 import Header from "../components/Header";
+import Footer from "../components/Footer";
 const Home = () => {
     const [items, setItems] = useState([]);
     const [error, setError] = useState(null);
@@ -53,6 +54,8 @@ const Home = () => {
                     )}
                 </div>
             </div>
+
+            <Footer />
         </>
     );
 };
