@@ -3,13 +3,18 @@
 import mongoose from 'mongoose';
 import bcrypt from 'bcrypt';
 
+
 const UserSchema = new mongoose.Schema({
   username: { type: String, required: true, unique: true },
   firstname: { type: String },
   lastname: { type: String },
   email: { type: String, required: true, unique: true },
-  password: { type: String, required: true },
-  role: { type: String, enum: ['user', 'admin'], default: 'user' },
+  password: { 
+    type: String, 
+    required: function() { return !this.isGoogleUser; } 
+  },
+  role: { type: String, enum: ['admin', 'visiteur'], default: 'user' },
+  isGoogleUser: { type: Boolean, default: false },
   address: {
     street: { type: String },
     city: { type: String },
