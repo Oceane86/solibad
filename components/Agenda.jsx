@@ -1,6 +1,6 @@
 // components/Agenda.jsx
 
-"use client";
+"use client"; 
 
 import { fr } from "date-fns/locale";
 import { format } from "date-fns";
@@ -33,7 +33,7 @@ const Agenda = () => {
       const endDate = new Date(item.endDate);
       return date >= startDate && date <= endDate;
     });
-    return isAuctionDay ? "bg-yellow-300 text-black font-bold rounded-full" : "";
+    return isAuctionDay ? "bg-yellow-300 text-black font-bold rounded" : "";
   };
 
   const handleEmailSubmit = async (e) => {
@@ -59,34 +59,36 @@ const Agenda = () => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-md">
+    <div className="max-w-5xl mx-auto p-8 bg-white rounded-lg shadow-lg space-y-12">
       <h1 className="text-4xl font-extrabold text-center text-gray-800 mb-8">
         Agenda des Enchères
       </h1>
 
       {/* Calendrier */}
-      <div className="flex justify-center">
+      <div className="flex justify-center mb-8">
         <Calendar
           onChange={setSelectedDate}
           value={selectedDate}
           locale="fr-FR"
           tileClassName={getTileClassName}
-          className="calendar-custom w-full max-w-md"
+          className="calendar-custom w-full max-w-lg rounded-lg shadow-md"
         />
       </div>
 
       {/* Liste des enchères */}
-      <div className="mt-10">
-        <h2 className="text-2xl font-bold text-gray-800 mb-6">Enchères à venir :</h2>
+      <div>
+        <h2 className="text-2xl font-semibold text-gray-800 mb-6">Enchères à venir :</h2>
         <ul className="space-y-6">
           {upcomingItems.length > 0 ? (
             upcomingItems.map((item) => (
               <li
                 key={item._id}
-                className="p-4 bg-gray-100 rounded-lg shadow-md hover:bg-gray-200 transition"
+                className="p-4 bg-gray-100 rounded-lg shadow-lg hover:bg-gray-200 transition duration-300 ease-in-out"
               >
                 <h3 className="text-lg font-semibold text-gray-800">{item.name}</h3>
-                <p className="text-gray-700">{item.description}</p>
+                <p className="text-gray-700 text-sm truncate max-w-full" title={item.description}>
+                  {item.description.length > 100 ? `${item.description.substring(0, 100)}...` : item.description}
+                </p>
                 <p className="text-sm text-gray-600 mt-2">
                   Début : {format(new Date(item.startDate), "PPpp", { locale: fr })} - Fin :{" "}
                   {format(new Date(item.endDate), "PPpp", { locale: fr })}
@@ -99,8 +101,8 @@ const Agenda = () => {
         </ul>
       </div>
 
-            {/* Formulaire de notification */}
-            <div className="mt-10 bg-blue-50 p-6 rounded-lg">
+      {/* Formulaire de notification */}
+      <div className="bg-blue-50 p-6 rounded-lg shadow-md">
         <h2 className="text-2xl font-bold text-gray-800 mb-4">
           Recevez une notification pour la prochaine enchère
         </h2>
@@ -117,12 +119,12 @@ const Agenda = () => {
           />
           <button
             type="submit"
-            className="px-6 py-3 bg-blue-500 text-white font-semibold rounded-md shadow-md hover:bg-blue-600 transition"
+            className="px-6 py-3 bg-blue-500 text-white font-semibold rounded-md shadow-md hover:bg-blue-600 transition duration-300 ease-in-out"
           >
             S'abonner
           </button>
         </form>
-        {message && <p className="mt-4 text-sm text-gray-700">{message}</p>}
+        {message && <p className="mt-4 text-sm text-gray-700">Votre email a bien été enregistré</p>}
       </div>
     </div>
   );

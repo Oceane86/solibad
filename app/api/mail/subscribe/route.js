@@ -1,13 +1,14 @@
 // app/api/mail/subscribe/route.js
 
-
 import { NextResponse } from "next/server";
+import { connectToDB } from "../../../utils/mongodb";
+import nodemailer from "nodemailer";
 
 export async function POST(request) {
   try {
     // Extraire les données de la requête
     const body = await request.json();
-    const { email } = body;
+    const { email, auctionId } = body; 
 
     // Validation basique de l'e-mail
     if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
@@ -17,21 +18,21 @@ export async function POST(request) {
       );
     }
 
-    // Simuler une action (enregistrement dans la base de données ou envoi d'e-mail)
-    // Exemple : Sauvegarder dans une base de données MongoDB
-    // const client = await connectToDatabase();
-    // const db = client.db("yourDatabase");
-    // await db.collection("subscribers").insertOne({ email });
+    // Connexion à la base de données
+    const { db } = await connectToDB();
 
-    // Pour cet exemple, nous retournons simplement une réponse de succès
+    await db.collection("subscribers").insertOne({ email, auctionId });
+
+    // Message de succès immédiat
     return NextResponse.json(
       { message: "Votre abonnement a été enregistré avec succès !" },
       { status: 200 }
     );
+
   } catch (error) {
     console.error("Erreur lors de l'enregistrement :", error);
     return NextResponse.json(
-      { message: "Une erreur s'est produite. Veuillez réessayer." },
+      // { message: "Une erreur s'est produite. Veuillez réessayer." },
       { status: 500 }
     );
   }
