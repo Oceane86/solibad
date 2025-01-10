@@ -1,120 +1,206 @@
-// app/admin/page.jsx
+// app/admin/edit/[id]/page.jsx
 
-'use client';
+"use client";
 
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
 import Header from "@/components/Header";
 
-const AdminPage = () => {
+const EditAuction = ({ params }) => {
   const { data: session, status } = useSession();
-  const router = useRouter();
-  const [items, setItems] = useState([]);
+  const [item, setItem] = useState(null);
+  const [name, setName] = useState("");
+  const [description, setDescription] = useState("");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+  const [initialPrice, setInitialPrice] = useState(0);
   const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [redirectMessage, setRedirectMessage] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [successMessage, setSuccessMessage] = useState("");
+  const router = useRouter();
+  const { id } = params;
 
   useEffect(() => {
-    const fetchItems = async () => {
-      if (status === "loading") return;
-
-      if (status !== "authenticated") {
-        router.push("/login");
-        return;
-      }
-
-      // Vérification si l'utilisateur a le rôle "admin"
-      if (session.user.role !== "admin") {
-        setRedirectMessage("Vous n'avez pas les autorisations nécessaires pour accéder à cette page.");
-        setTimeout(() => {
-          router.push("/"); // Redirige après 3 secondes
-        }, 3000);
-        return;
-      }
-
+    const fetchItem = async () => {
       try {
-        const userId = session.user?.id;
-        const response = await fetch(`/api/items/select?userId=${userId}`);
-
+        setLoading(true);
+        const response = await fetch(`/api/items/select?id=${id}`);
         if (!response.ok) {
-          throw new Error("Erreur lors de la récupération des données.");
+          throw new Error("Erreur lors de la récupération de l'enchère.");
         }
-
         const data = await response.json();
-        setItems(data);
+        setItem(data);
+        setName(data.name || "");
+        setDescription(data.description || "");
+        setStartDate(new Date(data.startDate).toISOString().slice(0, 16));
+        setEndDate(new Date(data.endDate).toISOString().slice(0, 16));
+        setInitialPrice(data.initialPrice || 0);
+        setLoading(false);
       } catch (err) {
         setError(err.message);
-      } finally {
         setLoading(false);
       }
     };
 
-    fetchItems();
-  }, [status, session, router]);
+    if (status === "authenticated") fetchItem();
+  }, [id, status]);
 
-  if (redirectMessage) {
-    return (
-      <div className="container mx-auto p-8 text-center">
-        <p className="text-red-500 text-lg">{redirectMessage}</p>
-        <p>Vous serez redirigé vers l'accueil dans quelques secondes...</p>
-      </div>
-    );
+  const handleDelete = async () => {
+    if (!window.confirm("Êtes-vous sûr de vouloir supprimer cette enchère ?")) {
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const response = await fetch(`/api/auction/delete/${id}`, {
+        method: "DELETE",
+      });
+
+      if (response.ok) {
+        setSuccessMessage("L'enchère a été supprimée avec succès !");
+        setTimeout(() => {
+          router.push("/admin");
+        }, 2000);
+      } else {
+        const data = await response.json();
+        setError(data.error || "Une erreur est survenue.");
+      }
+    } catch (err) {
+      setError("Erreur de connexion au serveur.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
+    setSuccessMessage("");
+
+    const data = {
+      name,
+      description,
+      startDate: new Date(startDate).toISOString(),
+      endDate: new Date(endDate).toISOString(),
+      initialPrice: Number(initialPrice),
+    };
+
+    try {
+      const response = await fetch(`/api/auction/edit/${id}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Une erreur est survenue.");
+      }
+
+      setSuccessMessage("L'enchère a été mise à jour avec succès !");
+      setTimeout(() => {
+        router.push("/admin");
+      }, 2000);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (status === "unauthenticated") {
+    return <p className="text-center text-red-500">Vous devez être connecté pour accéder à cette page.</p>;
+  }
+
+  if (loading && !item) {
+    return <p className="text-center text-gray-500">Chargement...</p>;
   }
 
   return (
-
-    <><Header />
-    <div className="container mx-auto p-8">
-      <h1 className="text-2xl font-bold mb-6">Mes Enchères</h1>
-
-      {/* Bouton de création d'enchère en haut */}
-      {!loading && !error && (
-        <Link href="/admin/create">
-          <button className="bg-green-500 text-white px-4 py-2 rounded mb-6 hover:bg-green-600 transition duration-300">
-            Créer une nouvelle enchère
-          </button>
-        </Link>
-      )}
-
-      {loading && <p>Chargement des enchères...</p>}
-      {error && <p className="text-red-500">❌ {error}</p>}
-
-      <div className="grid gap-8 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-        {items.length > 0 ? (
-          items.map((item) => (
-            <div key={item._id} className="border p-4 rounded-lg shadow-lg bg-white">
-              <h3 className="text-xl font-semibold text-gray-800">{item.name}</h3>
-
-              {/* Limitation de la description à 3 lignes avec troncage */}
-              <p className="text-gray-600 mt-2 line-clamp-3">{item.description}</p>
-
-              <p className="mt-4 text-gray-800">
-                <strong>Prix de départ:</strong> {item.initialPrice}€
-              </p>
-              <p className="text-gray-800">
-                <strong>Début:</strong> {new Date(item.startDate).toLocaleString()}
-              </p>
-              <p className="text-gray-800">
-                <strong>Fin:</strong> {new Date(item.endDate).toLocaleString()}
-              </p>
-
-              <div className="mt-4">
-                <Link href={`/admin/edit/${item._id}`}>
-                  <button className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition duration-300">
-                    Modifier
-                  </button>
-                </Link>
+    <>
+      <Header />
+      <div className="container mx-auto max-w-4xl p-6">
+        <h1 className="text-2xl font-bold text-left mb-6">Modifier l'Enchère</h1>
+        {error && <p className="text-red-500 text-center mb-4">{error}</p>}
+        {successMessage && <p className="text-green-500 text-center mb-4">{successMessage}</p>}
+        {item && (
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="flex flex-col">
+              <label className="font-medium">Nom</label>
+              <input
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                required
+                className="border rounded px-4 py-2"
+              />
+            </div>
+            <div className="flex flex-col">
+              <label className="font-medium">Description</label>
+              <textarea
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                required
+                className="border rounded px-4 py-2"
+              />
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="flex flex-col">
+                <label className="font-medium">Date de début</label>
+                <input
+                  type="datetime-local"
+                  value={startDate}
+                  onChange={(e) => setStartDate(e.target.value)}
+                  required
+                  className="border rounded px-4 py-2"
+                />
+              </div>
+              <div className="flex flex-col">
+                <label className="font-medium">Date de fin</label>
+                <input
+                  type="datetime-local"
+                  value={endDate}
+                  onChange={(e) => setEndDate(e.target.value)}
+                  required
+                  className="border rounded px-4 py-2"
+                />
               </div>
             </div>
-          ))
-        ) : (
-          !loading && <p>Aucune enchère disponible.</p>
+            <div className="flex flex-col">
+              <label className="font-medium">Prix initial</label>
+              <input
+                type="number"
+                value={initialPrice}
+                onChange={(e) => setInitialPrice(e.target.value)}
+                required
+                className="border rounded px-4 py-2"
+              />
+            </div>
+            <button
+              type="submit"
+              disabled={loading}
+              className="bg-blue-500 text-white px-6 py-2 rounded hover:bg-blue-600 disabled:opacity-50"
+            >
+              {loading ? "En cours..." : "Mettre à jour"}
+            </button>
+          </form>
         )}
+        <div className="mt-6">
+          <button
+            onClick={handleDelete}
+            disabled={loading}
+            className="bg-red-500 text-white px-6 py-2 rounded hover:bg-red-600 disabled:opacity-50"
+          >
+            {loading ? "Suppression en cours..." : "Supprimer l'enchère"}
+          </button>
+        </div>
       </div>
-    </div></>
+    </>
   );
 };
 
-export default AdminPage;
+export default EditAuction;
