@@ -2,7 +2,7 @@
 'use client';
 import { useState } from "react";
 import { useRouter } from 'next/navigation';
-
+import Header from "@/components/Header";
 export default function RegisterPage() {
     const router = useRouter();
     const [formData, setFormData] = useState({
@@ -76,97 +76,102 @@ export default function RegisterPage() {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gray-100">
-            <div className="w-full max-w-md bg-white p-8 rounded-lg shadow-md">
-                <h1 className="text-2xl font-bold text-center text-gray-800 mb-6">
-                    Créez votre compte
-                </h1>
-                <form className="space-y-4" onSubmit={handleSubmit}>
-                    <div>
-                        <label htmlFor="username" className="block text-sm font-medium text-gray-700">
-                            Nom d'utilisateur
-                        </label>
-                        <input
-                            id="username"
-                            name="username"
-                            type="text"
-                            value={formData.username}
-                            onChange={handleChange}
-                            className="mt-1 w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                        />
-                        {errors.username && <p className="text-red-500 text-sm mt-1">{errors.username}</p>}
-                    </div>
 
-                    <div>
-                        <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                            Email
-                        </label>
-                        <input
-                            id="email"
-                            name="email"
-                            type="email"
-                            value={formData.email}
-                            onChange={handleChange}
-                            className="mt-1 w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                        />
-                        {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
-                    </div>
-
-                    <div>
-                        <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-                            Mot de passe
-                        </label>
-                        <input
-                            id="password"
-                            name="password"
-                            type="password"
-                            value={formData.password}
-                            onChange={handleChange}
-                            className="mt-1 w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                        />
-                        {errors.password && <p className="text-red-500 text-sm mt-1">{errors.password}</p>}
-                    </div>
-
-                    <div>
-                        <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">
-                            Confirmation du mot de passe
-                        </label>
-                        <input
-                            id="confirmPassword"
-                            name="confirmPassword"
-                            type="password"
-                            value={formData.confirmPassword}
-                            onChange={handleChange}
-                            className="mt-1 w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                        />
-                        {errors.confirmPassword && <p className="text-red-500 text-sm mt-1">{errors.confirmPassword}</p>}
-                    </div>
-
-                    {errors.form && (
-                        <div className="text-red-500 text-sm text-center p-2 bg-red-50 rounded-md">
-                            {errors.form}
+        <>
+            <Header page={"inscription"} />
+            <div className="min-h-screen flex items-center justify-center bg-gray-100">
+                <div className="w-full max-w-md bg-white p-8 rounded-lg shadow-md">
+                    <h1 className="text-2xl font-bold text-center text-gray-800 mb-6">
+                        Créez votre compte
+                    </h1>
+                    <form className="space-y-4" onSubmit={handleSubmit}>
+                        <div>
+                            <label htmlFor="username" className="block text-sm font-medium text-gray-700">
+                                Nom d'utilisateur
+                            </label>
+                            <input
+                                id="username"
+                                name="username"
+                                type="text"
+                                value={formData.username}
+                                onChange={handleChange}
+                                className="mt-1 w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                            />
+                            {errors.username && <p className="text-red-500 text-sm mt-1">{errors.username}</p>}
                         </div>
-                    )}
-                    {successMessage && (
-                        <div className="text-green-500 text-sm text-center p-2 bg-green-50 rounded-md">
-                            {successMessage}
+
+                        <div>
+                            <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+                                Email
+                            </label>
+                            <input
+                                id="email"
+                                name="email"
+                                type="email"
+                                value={formData.email}
+                                onChange={handleChange}
+                                className="mt-1 w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                            />
+                            {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
                         </div>
-                    )}
 
-                    <button
-                        type="submit"
-                        className="w-full py-2 px-4 text-white bg-blue-600 hover:bg-blue-700 rounded-md shadow-md transition-colors duration-200"
-                    >
-                        S'inscrire
-                    </button>
+                        <div>
+                            <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+                                Mot de passe
+                            </label>
+                            <input
+                                id="password"
+                                name="password"
+                                type="password"
+                                value={formData.password}
+                                onChange={handleChange}
+                                className="mt-1 w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                            />
+                            {errors.password && <p className="text-red-500 text-sm mt-1">{errors.password}</p>}
+                        </div>
 
-                    <div className="text-center text-sm text-gray-600">
-                        <a href="/login" className="hover:text-blue-500">
-                            Vous avez déjà un compte ? Se connecter
-                        </a>
-                    </div>
-                </form>
+                        <div>
+                            <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">
+                                Confirmation du mot de passe
+                            </label>
+                            <input
+                                id="confirmPassword"
+                                name="confirmPassword"
+                                type="password"
+                                value={formData.confirmPassword}
+                                onChange={handleChange}
+                                className="mt-1 w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                            />
+                            {errors.confirmPassword &&
+                                <p className="text-red-500 text-sm mt-1">{errors.confirmPassword}</p>}
+                        </div>
+
+                        {errors.form && (
+                            <div className="text-red-500 text-sm text-center p-2 bg-red-50 rounded-md">
+                                {errors.form}
+                            </div>
+                        )}
+                        {successMessage && (
+                            <div className="text-green-500 text-sm text-center p-2 bg-green-50 rounded-md">
+                                {successMessage}
+                            </div>
+                        )}
+
+                        <button
+                            type="submit"
+                            className="w-full py-2 px-4 text-white bg-blue-600 hover:bg-blue-700 rounded-md shadow-md transition-colors duration-200"
+                        >
+                            S'inscrire
+                        </button>
+
+                        <div className="text-center text-sm text-gray-600">
+                            <a href="/login" className="hover:text-blue-500">
+                                Vous avez déjà un compte ? Se connecter
+                            </a>
+                        </div>
+                    </form>
+                </div>
             </div>
-        </div>
+        </>
     );
 }

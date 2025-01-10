@@ -78,18 +78,30 @@ const DetailPage = () => {
 
         console.log(`🛠 Initialisation du socket pour l'enchère ${id}`);
 
+        const socketUrl = "wss://pauldecalf.fr:4000"; // 🔥 HTTPS en production
+
         if (!socketRef.current) {
-            socketRef.current = io("wss://pauldecalf.fr", {
+            socketRef.current = io(socketUrl, {
                 path: "/socket.io/",
-                transports: ["websocket", "polling"]
+                transports: ["websocket", "polling"],
+                secure: true // 🔥 Assurer une connexion sécurisée
             });
 
-            socketRef.current.emit("join_auction", id);
-            console.log(`✅ Socket.io émis: join_auction ${id}`);
+            socketRef.current.on("connect", () => {
+                console.log("🟢 Connexion WebSocket établie");
+                socketRef.current.emit("join_auction", id);
+                console.log(`✅ Socket.io émis: join_auction ${id}`);
+            });
 
             socketRef.current.on("users_online", (count) => {
-                console.log(`👥 Nombre d'enchérisseurs en ligne pour ${id}:`, count);
-                setUsersOnline(count);
+                console.log("📩 Réception de users_online :", count);
+                if (typeof count === "number" && count >= 0) {
+                    setUsersOnline(count);
+                }
+            });
+
+            socketRef.current.on("connect_error", (err) => {
+                console.error("❌ Erreur de connexion WebSocket :", err);
             });
         }
 
@@ -102,6 +114,9 @@ const DetailPage = () => {
             }
         };
     }, [id]);
+
+
+
 
     // Récupération des données de l'enchère automatique concernant l'utilisateur
     useEffect(() => {
@@ -275,7 +290,7 @@ const DetailPage = () => {
 
     return (
         <Suspense>
-            <Header/>
+            <Header page={"detail"} />
             <div className="m-4">
                 <a href="/" className="underline mb-3">Revenir à la liste</a>
                 {item && (
@@ -287,7 +302,7 @@ const DetailPage = () => {
                                     <h1 className="text-2xl mt-6 sm:mt-0 font-bold max-w-[300px]">{item.name}</h1>
                                     <div className="mt-6">
                                         <p>Dernière enchère :</p>
-                                        <div className=" xl:flex xl:flex-row gap-10">
+                                        <div className=" flex  flex-col xl:flex-row gap-2">
                                             <p className="font-bold px-5 py-3 sm:px-10 sm:py-5 bg-red-500 text-white rounded-lg text-center">{enchereActuelle}€</p>
                                             {session && (
                                                 <button onClick={() => setShowModal(true)}

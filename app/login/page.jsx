@@ -2,7 +2,7 @@
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-
+import Header from "../../components/Header";
 const Login = () => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
@@ -35,6 +35,8 @@ const Login = () => {
     };
 
     return (
+    <>
+        <Header page={"connexion"} />
         <div className="min-h-screen flex items-center justify-center bg-gray-100">
             <div className="w-full max-w-md bg-white p-8 rounded-lg shadow-md">
                 <h1 className="text-2xl font-bold text-center text-gray-800 mb-6">
@@ -90,8 +92,8 @@ const Login = () => {
                     <p className="text-sm text-gray-600">Ou continuez avec</p>
                     <div className="flex justify-center mt-2">
                         <button
-                            className="flex items-center justify-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-gray-700 hover:bg-gray-50"
-                            onClick={() => signIn("google")}
+                            className="rs flex items-center justify-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-gray-700 hover:bg-gray-50"
+                            onClick={() => signIn('google')}
                         >
                             <img
                                 src="/assets/icone-google.svg"
@@ -110,6 +112,7 @@ const Login = () => {
                 </div>
             </div>
         </div>
+    </>
     );
 };
 
