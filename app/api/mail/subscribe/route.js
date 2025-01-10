@@ -1,8 +1,7 @@
 // app/api/mail/subscribe/route.js
 
 import { NextResponse } from "next/server";
-import { connectToDB } from "../../../utils/mongodb";
-import nodemailer from "nodemailer";
+import { connectToDB } from "@/mongodb/database";
 
 export async function POST(request) {
   try {
